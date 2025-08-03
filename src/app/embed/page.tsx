@@ -70,7 +70,7 @@ export default function EmbedPage() {
 
 Found ${scanResult?.veryInactiveUsers || 0} inactive users and ${scanResult?.notFollowingBack || 0} who don't follow back. This tool is 🔥
 
-Try it: https://unfollow.vercel.app/embed
+Try it: https://unfollow-9ifbpcoor-chipagosfinests-projects.vercel.app/embed
 
 #farcaster #unfollow #tool`
     
@@ -125,7 +125,7 @@ ${shareText}`)
               </p>
               <Button 
                 className="w-full"
-                onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
+                onClick={() => window.open('https://unfollow-9ifbpcoor-chipagosfinests-projects.vercel.app', '_blank')}
               >
                 Open Full App
               </Button>
@@ -278,13 +278,13 @@ ${shareText}`)
                   </div>
                   
                   <div className="mt-4 text-center">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
-                    >
-                      View All ({scanResult.recommendations.length})
-                    </Button>
+                                      <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => window.open('https://unfollow-9ifbpcoor-chipagosfinests-projects.vercel.app', '_blank')}
+                  >
+                    View All ({scanResult.recommendations.length})
+                  </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -294,13 +294,13 @@ ${shareText}`)
 
         {/* Footer */}
         <div className="text-center mt-6">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
-          >
-            Open Full App
-          </Button>
+                      <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => window.open('https://unfollow-9ifbpcoor-chipagosfinests-projects.vercel.app', '_blank')}
+            >
+              Open Full App
+            </Button>
         </div>
       </div>
     </div>
