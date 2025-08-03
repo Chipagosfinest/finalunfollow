@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   other: {
     "fc:frame": "vNext",
-    "fc:frame:image": "https://unfollow.vercel.app/thumbnail.png",
+    "fc:frame:image": "https://unfollow.vercel.app/embed-thumbnail.png",
     "fc:frame:button:1": "Try Unfollow Tool",
     "fc:frame:post_url": "https://unfollow.vercel.app/embed",
   },
