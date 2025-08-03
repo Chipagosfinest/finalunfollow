@@ -629,8 +629,8 @@ ${shareText}`)
                     </Button>
                     
                     <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        const pageNum = i + 1
+                                          {Array.from({ length: Math.min(5, totalPages) }, (_, _i) => {
+                      const pageNum = _i + 1
                         return (
                           <Button
                             key={pageNum}

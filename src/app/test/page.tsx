@@ -3,14 +3,24 @@
 import { useEffect, useState } from 'react'
 import { useFarcaster } from '@/components/FarcasterProvider'
 
+interface SdkInfo {
+  farcaster: unknown
+  hasActions: boolean
+  hasReady: boolean
+  userAgent: string
+  hostname: string
+  isFarcasterEnv: boolean
+  isMock?: boolean
+}
+
 export default function TestPage() {
   const { isReady, error } = useFarcaster()
-  const [sdkInfo, setSdkInfo] = useState<any>(null)
+  const [sdkInfo, setSdkInfo] = useState<SdkInfo | null>(null)
   const [logs, setLogs] = useState<string[]>([])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const farcasterWindow = window as any
+      const farcasterWindow = window as { farcaster?: unknown }
       
       // Add logs to track what's happening
       const addLog = (message: string) => {
@@ -25,8 +35,8 @@ export default function TestPage() {
       
       setSdkInfo({
         farcaster: farcasterWindow.farcaster,
-        hasActions: !!farcasterWindow.farcaster?.actions,
-        hasReady: !!farcasterWindow.farcaster?.actions?.ready,
+        hasActions: !!(farcasterWindow.farcaster as { actions?: unknown })?.actions,
+        hasReady: !!(farcasterWindow.farcaster as { actions?: { ready?: unknown } })?.actions?.ready,
         userAgent: navigator.userAgent,
         hostname: window.location.hostname,
         isFarcasterEnv: window.location.hostname.includes('warpcast') || 
@@ -57,8 +67,8 @@ export default function TestPage() {
         // Update SDK info
         setSdkInfo({
           farcaster: farcasterWindow.farcaster,
-          hasActions: !!farcasterWindow.farcaster?.actions,
-          hasReady: !!farcasterWindow.farcaster?.actions?.ready,
+          hasActions: !!(farcasterWindow.farcaster as { actions?: unknown })?.actions,
+          hasReady: !!(farcasterWindow.farcaster as { actions?: { ready?: unknown } })?.actions?.ready,
           userAgent: navigator.userAgent,
           hostname: window.location.hostname,
           isFarcasterEnv: true,
@@ -70,7 +80,7 @@ export default function TestPage() {
 
   const simulateSDK = () => {
     if (typeof window !== 'undefined') {
-      const farcasterWindow = window as any
+      const farcasterWindow = window as { farcaster?: unknown }
       
       if (!farcasterWindow.farcaster) {
         farcasterWindow.farcaster = {
@@ -88,8 +98,8 @@ export default function TestPage() {
         
         setSdkInfo({
           farcaster: farcasterWindow.farcaster,
-          hasActions: !!farcasterWindow.farcaster?.actions,
-          hasReady: !!farcasterWindow.farcaster?.actions?.ready,
+          hasActions: !!(farcasterWindow.farcaster as { actions?: unknown })?.actions,
+          hasReady: !!(farcasterWindow.farcaster as { actions?: { ready?: unknown } })?.actions?.ready,
           userAgent: navigator.userAgent,
           hostname: window.location.hostname,
           isFarcasterEnv: true,
@@ -200,7 +210,7 @@ export default function TestPage() {
           <ul className="text-sm text-yellow-700 space-y-1">
             <li>• The Farcaster SDK is only available when the app is embedded in a Farcaster client (like Warpcast)</li>
             <li>• When testing locally, you can simulate the SDK using the button above</li>
-            <li>• The "Ready not called" error only appears in the actual Farcaster environment</li>
+            <li>• The &quot;Ready not called&quot; error only appears in the actual Farcaster environment</li>
             <li>• Check the browser console for additional debugging information</li>
           </ul>
         </div>

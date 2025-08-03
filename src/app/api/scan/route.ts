@@ -287,7 +287,7 @@ async function analyzeRealFollowing(following: FarcasterUser[]) {
   return NextResponse.json(analysis)
 }
 
-async function generateMockAnalysis(user: FarcasterUser) {
+async function generateMockAnalysis(_user: FarcasterUser) {
   // Fallback mock data for demo purposes
   const sampleUsers = [
     { 
