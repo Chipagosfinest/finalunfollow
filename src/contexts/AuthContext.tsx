@@ -82,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('Mini App environment detected:', isInMiniApp)
       
       if (!isInMiniApp) {
+<<<<<<< HEAD
         console.log('Not in Mini App environment, using web authentication')
         // For web version, we'll use a demo user or prompt for FID
         const demoUser: User = {
@@ -92,6 +93,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         setUser(demoUser)
         localStorage.setItem('farcaster_user', JSON.stringify(demoUser))
+=======
+        console.log('Not in Mini App environment, showing web authentication')
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
         setIsLoading(false)
         return
       }
@@ -298,8 +302,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setUser(sdkUser)
                 localStorage.setItem('farcaster_user', JSON.stringify(sdkUser))
               }
+<<<<<<< HEAD
             } catch {
               console.log('AuthContext: API call error, using SDK user data')
+=======
+            } catch (error) {
+              console.log('AuthContext: API call error, using SDK user data:', error)
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
               setUser(sdkUser)
               localStorage.setItem('farcaster_user', JSON.stringify(sdkUser))
             }

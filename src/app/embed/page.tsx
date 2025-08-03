@@ -14,7 +14,10 @@ interface ScanResult {
   spamAccounts: number
   notFollowingBack: number
   veryInactiveUsers: number
+<<<<<<< HEAD
   message?: string
+=======
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
   recommendations: Array<{
     fid: number
     username: string
@@ -73,8 +76,11 @@ export default function EmbedPage() {
     setScanResult(null)
 
     try {
+<<<<<<< HEAD
       console.log('🔍 Starting scan for user:', user.username, 'FID:', user.fid)
       
+=======
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
       const response = await fetch('/api/scan', {
         method: 'POST',
         headers: {
@@ -86,6 +92,7 @@ export default function EmbedPage() {
       const data = await response.json()
 
       if (!response.ok) {
+<<<<<<< HEAD
         console.error('❌ Scan failed:', data.error)
         throw new Error(data.error || 'Failed to scan follows')
       }
@@ -96,6 +103,14 @@ export default function EmbedPage() {
       console.error('❌ Scan error:', err)
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
+=======
+        throw new Error(data.error || 'Failed to scan follows')
+      }
+
+      setScanResult(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
     } finally {
       setIsLoadingScan(false)
     }
@@ -106,7 +121,11 @@ export default function EmbedPage() {
 
 Found ${scanResult?.veryInactiveUsers || 0} inactive users and ${scanResult?.notFollowingBack || 0} who don&apos;t follow back. This tool is 🔥
 
+<<<<<<< HEAD
 Try it: https://unfollow.vercel.app/embed
+=======
+Try it: https://unfollow-tool.vercel.app/embed
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
 
 #farcaster #unfollow #tool`
     
@@ -126,6 +145,7 @@ ${shareText}`)
   return (
     <>
       <Head>
+<<<<<<< HEAD
         {/* Farcaster Mini App Embed Metadata */}
         <meta property="fc:miniapp" content="https://unfollow-blxn2u2jj-chipagosfinests-projects.vercel.app" />
         <meta property="fc:miniapp:version" content="1.0.0" />
@@ -156,6 +176,13 @@ ${shareText}`)
         <meta name="twitter:title" content="Unfollow Tool - Farcaster Mini App" />
         <meta name="twitter:description" content="Analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back." />
         <meta name="twitter:image" content="https://unfollow-blxn2u2jj-chipagosfinests-projects.vercel.app/embed-thumbnail.png" />
+=======
+        <meta property="fc:miniapp" content="https://unfollow-tool.vercel.app" />
+        <meta property="fc:miniapp:version" content="1.0.0" />
+        <meta property="fc:miniapp:image" content="https://unfollow-tool.vercel.app/embed-thumbnail.png" />
+        <meta property="fc:miniapp:button" content="Analyze Follows" />
+        <meta property="fc:miniapp:action" content="https://unfollow-tool.vercel.app/embed" />
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
       </Head>
 
       {isLoading ? (
@@ -233,6 +260,7 @@ ${shareText}`)
               </Card>
             </div>
 
+<<<<<<< HEAD
             {/* Status Message - Only show for empty results */}
             {scanResult.message && scanResult.recommendations.length === 0 && (
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
@@ -245,6 +273,8 @@ ${shareText}`)
               </div>
             )}
 
+=======
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
             {/* Recommendations */}
             <Card>
               <CardHeader>
@@ -286,7 +316,11 @@ ${shareText}`)
                 📤 Share Results
               </Button>
               <Button 
+<<<<<<< HEAD
                 onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
+=======
+                onClick={() => window.open('https://unfollow-tool.vercel.app', '_blank')}
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
                 variant="outline"
                 className="w-full py-3 px-6 rounded-lg transition-colors"
                 size="lg"
@@ -353,6 +387,7 @@ ${shareText}`)
 
               {error && (
                 <div className="text-red-600 text-sm text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+<<<<<<< HEAD
                   <div className="flex items-center gap-2 justify-center mb-2">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -363,12 +398,19 @@ ${shareText}`)
                   <div className="mt-2 text-xs text-red-500">
                     Please try again in a few moments
                   </div>
+=======
+                  {error}
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
                 </div>
               )}
 
               {/* Open Full App */}
               <Button 
+<<<<<<< HEAD
                 onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
+=======
+                onClick={() => window.open('https://unfollow-tool.vercel.app', '_blank')}
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
                 variant="outline"
                 className="w-full py-3 px-6 rounded-lg transition-colors"
                 size="lg"

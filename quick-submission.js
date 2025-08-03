@@ -29,4 +29,8 @@ console.log("🔗 Test URLs:");
 console.log("   Main App: https://unfollow-tool.vercel.app/embed");
 console.log("   Manifest: https://unfollow-tool.vercel.app/.well-known/farcaster.json");
 console.log("");
+<<<<<<< HEAD
 console.log("🎉 Ready for submission!"); 
+=======
+console.log("🎉 Ready for submission!");
+>>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
