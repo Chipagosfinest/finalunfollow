@@ -289,8 +289,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setUser(sdkUser)
                 localStorage.setItem('farcaster_user', JSON.stringify(sdkUser))
               }
-            } catch (error) {
-              console.log('AuthContext: API call error, using SDK user data:', error)
+            } catch (err) {
+              console.log('AuthContext: API call error, using SDK user data:', err)
               setUser(sdkUser)
               localStorage.setItem('farcaster_user', JSON.stringify(sdkUser))
             }
