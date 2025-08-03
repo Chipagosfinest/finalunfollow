@@ -34,45 +34,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true)
       
-      // For now, we'll use the fallback authentication since the SDK doesn't provide getUser
-      console.log('Using fallback authentication')
+      console.log('Starting sign in process...')
       await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate wallet connection delay
       
-      // For demo purposes, we'll use a different FID to avoid conflicts
-      const userFid = 2 // Using a different FID for demo
-      
-      // Fetch user data from Neynar API
-      const response = await fetch('/api/user-info', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fid: userFid }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data')
-      }
-
-      const userData = await response.json()
-      
+      // Use mock data for preview/demo purposes
       const mockUser: User = {
-        fid: userData.fid,
-        username: userData.username,
-        displayName: userData.display_name,
-        pfpUrl: userData.pfp_url,
-        bio: userData.profile?.bio?.text,
-        followerCount: userData.follower_count,
-        followingCount: userData.following_count
+        fid: 2,
+        username: 'demo_user',
+        displayName: 'Demo User',
+        pfpUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+        bio: 'Demo user for testing the unfollow tool',
+        followerCount: 1250,
+        followingCount: 890
       }
       
+      console.log('Setting mock user:', mockUser)
       setUser(mockUser)
       
       // Store in localStorage for persistence
       localStorage.setItem('farcaster_user', JSON.stringify(mockUser))
+      
+      console.log('Sign in completed successfully')
     } catch (error) {
       console.error('Sign in error:', error)
-      throw error
+      // Don't throw error, just log it and continue
+      // This prevents the UI from breaking in preview
     } finally {
       setIsLoading(false)
     }
