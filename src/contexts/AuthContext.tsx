@@ -82,6 +82,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       
+      // Method 2.5: Try to get FID from URL hash (for frame embeds)
+      if (!userFid && typeof window !== 'undefined') {
+        const hash = window.location.hash
+        const fidMatch = hash.match(/fid=(\d+)/)
+        if (fidMatch) {
+          userFid = parseInt(fidMatch[1])
+          console.log('Got FID from URL hash:', userFid)
+        }
+      }
+      
       // Method 3: Try to get FID from localStorage (if previously stored)
       if (!userFid && typeof window !== 'undefined') {
         const storedUser = localStorage.getItem('farcaster_user')
@@ -100,11 +110,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // If we're in Farcaster environment but don't have a FID, try to get it from the SDK
       if (!userFid && isInFarcaster) {
-        console.log('In Farcaster environment, attempting to get user info...')
-        // In Farcaster environment, we should have access to user info
-        // For now, we'll simulate a successful authentication
-        userFid = 12345 // This would be the actual user's FID in real Farcaster
-        console.log('Using simulated FID for Farcaster environment:', userFid)
+        console.log('In Farcaster environment, attempting to get user info from SDK...')
+        try {
+          // Try to get user info from the official Farcaster SDK
+          if (sdk?.actions?.getUser) {
+            const userInfo = await sdk.actions.getUser()
+            console.log('SDK getUser result:', userInfo)
+            if (userInfo && userInfo.fid) {
+              userFid = userInfo.fid
+              console.log('Got FID from SDK:', userFid)
+            }
+          }
+        } catch (error) {
+          console.log('SDK getUser failed:', error)
+        }
+        
+        // If still no FID, try to get it from the URL hash or other methods
+        if (!userFid && typeof window !== 'undefined') {
+          // Check if FID is in the URL hash
+          const hash = window.location.hash
+          const fidMatch = hash.match(/fid=(\d+)/)
+          if (fidMatch) {
+            userFid = parseInt(fidMatch[1])
+            console.log('Got FID from URL hash:', userFid)
+          }
+        }
+        
+        // If still no FID, we can't authenticate
+        if (!userFid) {
+          console.log('No FID found in Farcaster environment')
+          // For now, we'll throw an error, but in the future we might want to show a different UI
+          throw new Error('Unable to get user FID from Farcaster environment. Please try refreshing the page or accessing the app directly.')
+        }
       }
       
       if (!userFid) {

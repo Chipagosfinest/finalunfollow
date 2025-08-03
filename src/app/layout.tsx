@@ -17,6 +17,34 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Unfollow Tool",
   description: "Unfollow on Farcaster - Analyze your follows and identify who to unfollow",
+  openGraph: {
+    title: "Unfollow Tool",
+    description: "Unfollow on Farcaster - Analyze your follows and identify who to unfollow",
+    url: "https://unfollow.vercel.app",
+    siteName: "Unfollow Tool",
+    images: [
+      {
+        url: "https://unfollow.vercel.app/thumbnail.html",
+        width: 1200,
+        height: 630,
+        alt: "Unfollow Tool",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Unfollow Tool",
+    description: "Unfollow on Farcaster - Analyze your follows and identify who to unfollow",
+    images: ["https://unfollow.vercel.app/thumbnail.html"],
+  },
+  other: {
+    "fc:frame": "vNext",
+    "fc:frame:image": "https://unfollow.vercel.app/thumbnail.html",
+    "fc:frame:button:1": "Try Unfollow Tool",
+    "fc:frame:post_url": "https://unfollow.vercel.app/embed",
+  },
 };
 
 export default function RootLayout({

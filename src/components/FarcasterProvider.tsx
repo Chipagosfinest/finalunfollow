@@ -23,6 +23,15 @@ export function FarcasterProvider({ children }: { children: ReactNode }) {
         if (typeof window !== 'undefined') {
           console.log('FarcasterProvider: Window object available')
           
+          // Check if we're in a Farcaster mini app environment
+          const isInFarcaster = window.location.hostname.includes('farcaster') || 
+                               window.location.hostname.includes('warpcast') ||
+                               window.location.hostname.includes('vercel.app') ||
+                               document.referrer.includes('farcaster') ||
+                               document.referrer.includes('warpcast')
+          
+          console.log('FarcasterProvider: In Farcaster environment:', isInFarcaster)
+          
           // Use the official SDK
           if (sdk?.actions?.ready) {
             console.log('FarcasterProvider: Official SDK found, calling ready()...')

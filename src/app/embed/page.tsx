@@ -202,6 +202,9 @@ ${shareText}`)
                     src={user.pfp_url} 
                     alt={user.display_name}
                     className="w-10 h-10 rounded-full"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://i.seadn.io/gae/sYAr036bd0bRpj7OX6B-F-MqLGznVkK3--DSneL_BT5GX4NZJ3Zu91PgjpD9-xuVJtHq0qirJfPZeMKrahz8Us2Tj_X8qdNPYC-imqs?w=500&auto=format'
+                    }}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-gray-900 dark:text-white truncate">
@@ -229,7 +232,14 @@ ${shareText}`)
               📤 Share Results
             </Button>
             <Button 
-              onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
+              onClick={() => {
+                // For Farcaster embedding, open in the same window
+                if (typeof window !== 'undefined' && window.location.hostname.includes('farcaster')) {
+                  window.location.href = 'https://unfollow.vercel.app'
+                } else {
+                  window.open('https://unfollow.vercel.app', '_blank')
+                }
+              }}
               variant="outline"
               className="w-full py-3 px-6 rounded-lg transition-colors"
               size="lg"

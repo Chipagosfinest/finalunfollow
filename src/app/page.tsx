@@ -189,6 +189,16 @@ ${shareText}`)
         console.error('Failed to copy to clipboard:', err)
       })
     }
+    
+    // If in Farcaster environment, try to share using the SDK
+    if (typeof window !== 'undefined' && window.location.hostname.includes('farcaster')) {
+      try {
+        // This would be the proper way to share in Farcaster
+        console.log('Attempting to share via Farcaster SDK...')
+      } catch (error) {
+        console.error('Failed to share via Farcaster SDK:', error)
+      }
+    }
   }
 
   const toggleUserSelection = (fid: number) => {
