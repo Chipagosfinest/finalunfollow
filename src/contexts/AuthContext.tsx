@@ -107,8 +107,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // If we don't have a FID, show a user-friendly message instead of throwing an error
       if (!userFid) {
-        console.log('No FID found, showing authentication prompt')
-        // Don't throw an error - let the UI handle this gracefully
+        console.log('No FID found, checking environment...')
+        
+        // If we're in a Mini App environment, this might be normal
+        if (isInMiniApp) {
+          console.log('In Mini App environment but no FID found - this might be expected')
+          setIsLoading(false)
+          return
+        }
+        
+        // In regular web environment, show authentication prompt
+        console.log('No FID found in web environment, showing authentication prompt')
         setIsLoading(false)
         return
       }
@@ -183,18 +192,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const isInMiniApp = await sdk.isInMiniApp()
         console.log('AuthContext: Mini App environment detected:', isInMiniApp)
         
-        // If we're in a Mini App, try to authenticate automatically
-        if (isInMiniApp) {
-          console.log('AuthContext: Attempting automatic authentication in Mini App...')
-          await signIn()
-        } else {
-          // In regular web environment, just refresh stored user
-          refreshUser()
+        // Always try to refresh stored user first
+        await refreshUser()
+        
+        // If we're in a Mini App and don't have a user, try to get user info
+        if (isInMiniApp && !user) {
+          console.log('AuthContext: In Mini App without user, attempting to get user info...')
+          
+          // Try to get user info from window.farcaster
+          if (typeof window !== 'undefined') {
+            const farcasterWindow = window as FarcasterWindow
+            if (farcasterWindow.farcaster?.getUser) {
+              try {
+                console.log('AuthContext: Trying window.farcaster.getUser()...')
+                const userInfo = await farcasterWindow.farcaster.getUser()
+                console.log('AuthContext: Window farcaster getUser result:', userInfo)
+                if (userInfo && userInfo.fid) {
+                  // We have a FID, now fetch the full user data
+                  const response = await fetch('/api/user-info', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ fid: userInfo.fid.toString() }),
+                  })
+
+                  if (response.ok) {
+                    const userData = await response.json()
+                    
+                    const realUser: User = {
+                      fid: userData.fid,
+                      username: userData.username,
+                      displayName: userData.display_name,
+                      pfpUrl: userData.pfp_url,
+                      bio: userData.profile?.bio?.text,
+                      followerCount: userData.follower_count,
+                      followingCount: userData.following_count
+                    }
+                    
+                    console.log('AuthContext: Setting user from Mini App:', realUser)
+                    setUser(realUser)
+                    localStorage.setItem('farcaster_user', JSON.stringify(realUser))
+                  }
+                }
+              } catch (error) {
+                console.log('AuthContext: Window farcaster getUser failed:', error)
+              }
+            }
+          }
         }
       } catch (error) {
         console.error('AuthContext: Initialization error:', error)
         // Fall back to refreshing stored user
-        refreshUser()
+        await refreshUser()
       }
     }
     
