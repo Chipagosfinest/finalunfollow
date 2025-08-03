@@ -1,154 +1,181 @@
-# Deployment Guide - Unfollow Mini App
+# Deployment Guide
 
-## 🚀 **Deploy to Vercel**
+This guide covers deploying the Unfollow Mini App to various platforms.
 
-### **1. Prepare for Deployment**
+## 🚀 Quick Deploy to Vercel
 
-#### **Build Test:**
+### Option 1: Deploy with Vercel CLI
+
+1. **Install Vercel CLI:**
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Login to Vercel:**
+   ```bash
+   vercel login
+   ```
+
+3. **Deploy:**
+   ```bash
+   vercel --prod
+   ```
+
+### Option 2: Deploy via GitHub Integration
+
+1. **Connect GitHub to Vercel:**
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Vercel will automatically detect Next.js settings
+
+2. **Set Environment Variables:**
+   - Add your environment variables in Vercel dashboard
+   - Required variables (see `env.example`)
+
+3. **Automatic Deployments:**
+   - Every push to `main` branch triggers deployment
+   - Pull requests create preview deployments
+
+## 🔧 Environment Variables
+
+Create a `.env.local` file with:
+
+```env
+# Farcaster API Keys
+NEXT_PUBLIC_FARCASTER_DEVELOPER_MNEMONIC=your_mnemonic_here
+NEXT_PUBLIC_FARCASTER_DEVELOPER_SIGNER_UUID=your_uuid_here
+
+# Neynar API (for enhanced data)
+NEYNER_API_KEY=your_neynar_api_key_here
+
+# App Configuration
+NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+```
+
+## 📱 GitHub Actions Deployment
+
+The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically deploys to Vercel.
+
+### Setup GitHub Secrets:
+
+1. **Get Vercel Tokens:**
+   ```bash
+   vercel token list
+   ```
+
+2. **Add Secrets in GitHub:**
+   - Go to your repository → Settings → Secrets and variables → Actions
+   - Add these secrets:
+     - `VERCEL_TOKEN`: Your Vercel token
+     - `VERCEL_ORG_ID`: Your Vercel organization ID
+     - `VERCEL_PROJECT_ID`: Your Vercel project ID
+
+## 🌐 Manual Deployment Steps
+
+### 1. Build the Project
 ```bash
 npm run build
 ```
 
-#### **Environment Variables:**
-Make sure these are set in Vercel:
-- `NEYNAR_API_KEY=BD9B92A0-6451-4284-B376-8CC521C01754`
-- `NEYNAR_SIGNER_UUID=8c23047d-185d-462e-96a7-c70826ad8340`
-
-### **2. Deploy to Vercel**
-
-#### **Option A: Vercel CLI**
+### 2. Test Locally
 ```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-
-# Follow prompts:
-# - Link to existing project? No
-# - Project name: unfollow-mini-app
-# - Directory: ./
-# - Override settings? No
+npm start
 ```
 
-#### **Option B: GitHub + Vercel Dashboard**
-1. Push to GitHub
-2. Go to [vercel.com](https://vercel.com)
-3. Import repository
-4. Add environment variables
-5. Deploy
-
-### **3. Environment Variables Setup**
-
-In Vercel Dashboard:
-1. Go to Project Settings
-2. Environment Variables
-3. Add:
-   ```
-   NEYNAR_API_KEY=BD9B92A0-6451-4284-B376-8CC521C01754
-   NEYNAR_SIGNER_UUID=8c23047d-185d-462e-96a7-c70826ad8340
-   ```
-
-### **4. Custom Domain (Optional)**
-
-1. Go to Vercel Dashboard
-2. Domains section
-3. Add your domain
-4. Configure DNS
-
-## 📋 **Pre-Deployment Checklist**
-
-- [ ] **Build Success** - `npm run build` works
-- [ ] **Environment Variables** - Set in Vercel
-- [ ] **API Keys** - Valid Neynar credentials
-- [ ] **Testing** - All functionality works locally
-- [ ] **Responsive** - Mobile/desktop tested
-- [ ] **Dark Mode** - Light/dark themes work
-
-## 🔧 **Post-Deployment Testing**
-
-### **1. Basic Functionality**
-- [ ] App loads without errors
-- [ ] Dark mode toggle works
-- [ ] Scan functionality works
-- [ ] Unfollow functionality works
-
-### **2. API Testing**
+### 3. Deploy
 ```bash
-# Test production API
-curl -X POST "https://your-app.vercel.app/api/scan" \
-  -H "Content-Type: application/json" \
-  -d '{"fid": "3"}' | jq .
+vercel --prod
 ```
 
-### **3. Cross-Browser Testing**
-- [ ] Chrome
-- [ ] Firefox  
-- [ ] Safari
-- [ ] Edge
-- [ ] Mobile browsers
+## 🔍 Troubleshooting
 
-## 🎯 **Production Features**
+### Common Issues:
 
-### **✅ What's Working:**
-- Real Neynar API integration
-- Dark/light mode toggle
-- Responsive design
-- Interactive unfollow functionality
-- Error handling
-- Loading states
+1. **Build Failures:**
+   - Check Node.js version (requires 18+)
+   - Ensure all dependencies are installed
+   - Verify environment variables are set
 
-### **🔮 Future Enhancements:**
-- Real Farcaster authentication
-- Actual unfollow operations
-- Database integration
-- User preferences
-- Analytics dashboard
+2. **Authentication Issues:**
+   - Verify Farcaster developer credentials
+   - Check API key permissions
 
-## 📊 **Monitoring**
+3. **Runtime Errors:**
+   - Check Vercel function logs
+   - Verify API endpoints are working
 
-### **Vercel Analytics:**
-- Page views
-- Performance metrics
-- Error tracking
+### Debug Commands:
+```bash
+# Check build output
+npm run build
 
-### **API Monitoring:**
-- Neynar API usage
-- Rate limiting
-- Error responses
+# Test API routes locally
+curl -X POST http://localhost:3000/api/scan
 
-## 🚨 **Troubleshooting**
+# Check Vercel deployment status
+vercel ls
+```
 
-### **Common Issues:**
+## 📊 Monitoring
 
-1. **Build Failures**
-   - Check TypeScript errors
-   - Verify all imports
-   - Test locally first
+### Vercel Analytics:
+- View deployment status in Vercel dashboard
+- Monitor function performance
+- Check error logs
 
-2. **API Errors**
-   - Verify environment variables
-   - Check Neynar API key
-   - Test API endpoints
+### GitHub Actions:
+- View workflow runs in Actions tab
+- Check deployment logs
+- Monitor build status
 
-3. **Styling Issues**
-   - Check Tailwind CSS
-   - Verify dark mode classes
-   - Test responsive breakpoints
+## 🔄 Continuous Deployment
 
-## 🎉 **Success Metrics**
+The app is configured for continuous deployment:
 
-- [ ] App deploys successfully
-- [ ] All functionality works in production
-- [ ] Mobile/desktop responsive
-- [ ] Dark mode toggle works
-- [ ] API calls succeed
-- [ ] No console errors
+- **Main Branch:** Automatic production deployment
+- **Feature Branches:** Preview deployments
+- **Pull Requests:** Preview deployments with comments
 
-## 📞 **Support**
+## 🛡️ Security
 
-If you encounter issues:
-1. Check Vercel logs
-2. Test API endpoints
-3. Verify environment variables
-4. Check browser console for errors 
+### Environment Variables:
+- Never commit `.env.local` to git
+- Use Vercel's environment variable system
+- Rotate API keys regularly
+
+### API Security:
+- Rate limiting on API routes
+- Input validation
+- Error handling without exposing internals
+
+## 📈 Performance Optimization
+
+### Build Optimizations:
+- Next.js automatic optimizations
+- Image optimization enabled
+- Code splitting for better loading
+
+### Runtime Optimizations:
+- API response caching
+- Efficient database queries
+- Minimal bundle size
+
+## 🎯 Production Checklist
+
+Before deploying to production:
+
+- [ ] Environment variables configured
+- [ ] API keys valid and working
+- [ ] Build passes locally
+- [ ] Tests passing
+- [ ] Error handling implemented
+- [ ] Performance optimized
+- [ ] Security measures in place
+- [ ] Monitoring configured
+
+## 🔗 Useful Links
+
+- [Vercel Documentation](https://vercel.com/docs)
+- [Next.js Deployment](https://nextjs.org/docs/deployment)
+- [GitHub Actions](https://docs.github.com/en/actions)
+- [Farcaster Developer Portal](https://docs.farcaster.xyz/) 
