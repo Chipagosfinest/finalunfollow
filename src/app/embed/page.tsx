@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/contexts/AuthContext"
+import { useFarcaster } from "@/components/FarcasterProvider"
 import Head from 'next/head'
 import Image from 'next/image'
 
@@ -30,18 +31,30 @@ interface ScanResult {
 
 export default function EmbedPage() {
   const { user, isAuthenticated, isLoading, signIn } = useAuth()
+  const { isReady, isInMiniApp } = useFarcaster()
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [isLoadingScan, setIsLoadingScan] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSigningIn, setIsSigningIn] = useState(false)
 
+  // Debug logging
+  useEffect(() => {
+    console.log('EmbedPage: Component mounted')
+    console.log('EmbedPage: isReady:', isReady)
+    console.log('EmbedPage: isInMiniApp:', isInMiniApp)
+    console.log('EmbedPage: isAuthenticated:', isAuthenticated)
+    console.log('EmbedPage: isLoading:', isLoading)
+  }, [isReady, isInMiniApp, isAuthenticated, isLoading])
+
   const handleSignIn = async () => {
     try {
       setIsSigningIn(true)
       setError(null)
+      console.log('EmbedPage: Starting sign in...')
       await signIn()
+      console.log('EmbedPage: Sign in completed')
     } catch (error) {
-      console.error('Sign in failed:', error)
+      console.error('EmbedPage: Sign in failed:', error)
       setError('Sign in failed. Please try again.')
     } finally {
       setIsSigningIn(false)

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/contexts/AuthContext"
+import { useFarcaster } from "@/components/FarcasterProvider"
 import { LoginButton } from "@/components/LoginButton"
 import { UserProfile } from "@/components/UserProfile"
 import Image from 'next/image'
@@ -30,7 +31,8 @@ interface ScanResult {
 }
 
 export default function Home() {
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const { user, isAuthenticated, isLoading, location } = useAuth()
+  const { safeAreaInsets, features, isInMiniApp } = useFarcaster()
   const [isLoadingScan, setIsLoadingScan] = useState(false)
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -100,7 +102,10 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ targetFid }),
+        body: JSON.stringify({ 
+          targetFid: targetFid.toString(),
+          userFid: user?.fid.toString() 
+        }),
       })
 
       const data = await response.json()
@@ -109,22 +114,24 @@ export default function Home() {
         throw new Error(data.error || 'Failed to unfollow user')
       }
 
-      // Remove the unfollowed user from recommendations
+      // Remove from scan results
       if (scanResult) {
         setScanResult({
           ...scanResult,
-          recommendations: scanResult.recommendations.filter(r => r.fid !== targetFid),
-          totalFollows: scanResult.totalFollows - 1
+          recommendations: scanResult.recommendations.filter(user => user.fid !== targetFid)
         })
       }
-      
+
       // Remove from selected users
       setSelectedUsers(prev => {
         const newSet = new Set(prev)
         newSet.delete(targetFid)
         return newSet
       })
+
+      console.log(`Successfully unfollowed user ${targetFid}`)
     } catch (err) {
+      console.error('Unfollow error:', err)
       setError(err instanceof Error ? err.message : 'Failed to unfollow user')
     } finally {
       setUnfollowing(prev => prev.filter(id => id !== targetFid))
@@ -132,36 +139,49 @@ export default function Home() {
   }
 
   const handleUnfollowAll = async () => {
-    if (selectedUsers.size === 0) return
-    
+    if (selectedUsers.size === 0) {
+      setError('Please select users to unfollow')
+      return
+    }
+
     setIsUnfollowingAll(true)
     
     try {
-      // Unfollow all selected users
-      const unfollowPromises = Array.from(selectedUsers).map(fid => 
+      const selectedArray = Array.from(selectedUsers)
+      const promises = selectedArray.map(targetFid => 
         fetch('/api/unfollow', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ targetFid: fid }),
+          body: JSON.stringify({ 
+            targetFid: targetFid.toString(),
+            userFid: user?.fid.toString() 
+          }),
         })
       )
-      
-      await Promise.all(unfollowPromises)
-      
-      // Remove all unfollowed users from recommendations
+
+      const responses = await Promise.all(promises)
+      const results = await Promise.all(responses.map(r => r.json()))
+
+      // Check for errors
+      const errors = results.filter(r => !r.success)
+      if (errors.length > 0) {
+        throw new Error(`Failed to unfollow ${errors.length} users`)
+      }
+
+      // Remove from scan results
       if (scanResult) {
         setScanResult({
           ...scanResult,
-          recommendations: scanResult.recommendations.filter(r => !selectedUsers.has(r.fid)),
-          totalFollows: scanResult.totalFollows - selectedUsers.size
+          recommendations: scanResult.recommendations.filter(user => !selectedUsers.has(user.fid))
         })
       }
-      
-      // Clear selected users
+
       setSelectedUsers(new Set())
+      console.log(`Successfully unfollowed ${selectedArray.length} users`)
     } catch (err) {
+      console.error('Bulk unfollow error:', err)
       setError(err instanceof Error ? err.message : 'Failed to unfollow users')
     } finally {
       setIsUnfollowingAll(false)
@@ -169,36 +189,16 @@ export default function Home() {
   }
 
   const handleShare = () => {
-    const shareText = `🔍 Unfollow Tool - Just cleaned up my Farcaster follows!
-
-Found ${scanResult?.veryInactiveUsers || 0} inactive users and ${scanResult?.notFollowingBack || 0} who don't follow back. This tool is 🔥
-
-Try it: https://unfollow.vercel.app/embed
-
-#farcaster #unfollow #tool`
-    
-    // For mini app experience, show a success message instead of opening external tab
-    alert(`Share text copied to clipboard! You can now paste this in your Farcaster client:
-
-${shareText}`)
-    
-    // Copy to clipboard if available
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(shareText).then(() => {
-        console.log('Share text copied to clipboard')
-      }).catch(err => {
-        console.error('Failed to copy to clipboard:', err)
+    if (navigator.share) {
+      navigator.share({
+        title: 'Unfollow Tool',
+        text: 'Check out this Farcaster unfollow tool!',
+        url: window.location.href,
       })
-    }
-    
-    // If in Farcaster environment, try to share using the SDK
-    if (typeof window !== 'undefined' && window.location.hostname.includes('farcaster')) {
-      try {
-        // This would be the proper way to share in Farcaster
-        console.log('Attempting to share via Farcaster SDK...')
-      } catch (error) {
-        console.error('Failed to share via Farcaster SDK:', error)
-      }
+    } else {
+      // Fallback to copying URL
+      navigator.clipboard.writeText(window.location.href)
+      alert('URL copied to clipboard!')
     }
   }
 
@@ -215,29 +215,25 @@ ${shareText}`)
   }
 
   const selectAllOnPage = () => {
-    if (!scanResult) return
-    
     const startIndex = (currentPage - 1) * usersPerPage
     const endIndex = startIndex + usersPerPage
-    const usersOnPage = scanResult.recommendations.slice(startIndex, endIndex)
+    const pageUsers = scanResult?.recommendations.slice(startIndex, endIndex) || []
     
     setSelectedUsers(prev => {
       const newSet = new Set(prev)
-      usersOnPage.forEach(user => newSet.add(user.fid))
+      pageUsers.forEach(user => newSet.add(user.fid))
       return newSet
     })
   }
 
   const deselectAllOnPage = () => {
-    if (!scanResult) return
-    
     const startIndex = (currentPage - 1) * usersPerPage
     const endIndex = startIndex + usersPerPage
-    const usersOnPage = scanResult.recommendations.slice(startIndex, endIndex)
+    const pageUsers = scanResult?.recommendations.slice(startIndex, endIndex) || []
     
     setSelectedUsers(prev => {
       const newSet = new Set(prev)
-      usersOnPage.forEach(user => newSet.delete(user.fid))
+      pageUsers.forEach(user => newSet.delete(user.fid))
       return newSet
     })
   }
@@ -248,10 +244,21 @@ ${shareText}`)
   const endIndex = startIndex + usersPerPage
   const currentUsers = scanResult ? scanResult.recommendations.slice(startIndex, endIndex) : []
 
+  // Apply safe area insets for mobile
+  const containerStyle = {
+    paddingTop: safeAreaInsets?.top || 0,
+    paddingBottom: safeAreaInsets?.bottom || 0,
+    paddingLeft: safeAreaInsets?.left || 0,
+    paddingRight: safeAreaInsets?.right || 0,
+  }
+
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div 
+        className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center"
+        style={containerStyle}
+      >
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-300">Loading...</p>
@@ -263,7 +270,10 @@ ${shareText}`)
   // Show login screen if not authenticated
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+      <div 
+        className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4"
+        style={containerStyle}
+      >
         <div className="mx-auto max-w-md">
           {/* Header */}
           <div className="mb-8 text-center">
@@ -283,6 +293,25 @@ ${shareText}`)
             <p className="text-lg text-gray-600 dark:text-gray-300">
               Sign in with Farcaster to analyze your follows
             </p>
+            
+            {/* Show context information if in Mini App */}
+            {isInMiniApp && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  🚀 Running in Farcaster Mini App
+                </p>
+                {location && (
+                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                    Launched from: {location.type}
+                  </p>
+                )}
+                {features?.haptics && (
+                  <p className="text-xs text-blue-600 dark:text-blue-400">
+                    ✨ Haptic feedback available
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Login Card */}
@@ -325,7 +354,10 @@ ${shareText}`)
 
   // Show main app if authenticated
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+    <div 
+      className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4"
+      style={containerStyle}
+    >
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8 text-center">
@@ -345,6 +377,25 @@ ${shareText}`)
           <p className="text-lg text-gray-600 dark:text-gray-300">
             Scan your Farcaster follows and identify who to unfollow
           </p>
+          
+          {/* Show context information if in Mini App */}
+          {isInMiniApp && (
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                🚀 Running in Farcaster Mini App
+              </p>
+              {location && (
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  Launched from: {location.type}
+                </p>
+              )}
+              {features?.haptics && (
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  ✨ Haptic feedback available
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Main Content */}
