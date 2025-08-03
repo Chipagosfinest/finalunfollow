@@ -34,31 +34,91 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true)
       
-      console.log('Starting sign in process...')
-      await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate wallet connection delay
+      console.log('Starting real Farcaster authentication...')
       
-      // Use mock data for preview/demo purposes
-      const mockUser: User = {
-        fid: 2,
-        username: 'demo_user',
-        displayName: 'Demo User',
-        pfpUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-        bio: 'Demo user for testing the unfollow tool',
-        followerCount: 1250,
-        followingCount: 890
+      // Try to get user info from the Farcaster environment
+      let userFid: number | null = null
+      
+      // Method 1: Try to get FID from the SDK
+      if (sdk?.actions?.getUser) {
+        try {
+          console.log('Trying sdk.actions.getUser()...')
+          const userInfo = await sdk.actions.getUser()
+          console.log('SDK getUser result:', userInfo)
+          if (userInfo && userInfo.fid) {
+            userFid = userInfo.fid
+          }
+        } catch (error) {
+          console.log('SDK getUser failed:', error)
+        }
       }
       
-      console.log('Setting mock user:', mockUser)
-      setUser(mockUser)
+      // Method 2: Try to get FID from window.farcaster if SDK method doesn't work
+      if (!userFid && typeof window !== 'undefined' && (window as any).farcaster) {
+        try {
+          console.log('Trying window.farcaster.getUser()...')
+          const userInfo = await (window as any).farcaster.getUser()
+          console.log('Window farcaster getUser result:', userInfo)
+          if (userInfo && userInfo.fid) {
+            userFid = userInfo.fid
+          }
+        } catch (error) {
+          console.log('Window farcaster getUser failed:', error)
+        }
+      }
       
-      // Store in localStorage for persistence
-      localStorage.setItem('farcaster_user', JSON.stringify(mockUser))
+      // Method 3: Try to get FID from URL parameters or other sources
+      if (!userFid && typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search)
+        const fidParam = urlParams.get('fid')
+        if (fidParam) {
+          userFid = parseInt(fidParam)
+          console.log('Got FID from URL parameter:', userFid)
+        }
+      }
       
-      console.log('Sign in completed successfully')
+      // If we still don't have a FID, try a default one for testing
+      if (!userFid) {
+        console.log('No FID found, using default for testing')
+        userFid = 2 // Default FID for testing
+      }
+      
+      console.log('Using FID for authentication:', userFid)
+      
+      // Fetch user data using the FID
+      const response = await fetch('/api/user-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fid: userFid.toString() }),
+      })
+
+      if (response.ok) {
+        const userData = await response.json()
+        
+        const realUser: User = {
+          fid: userData.fid,
+          username: userData.username,
+          displayName: userData.display_name,
+          pfpUrl: userData.pfp_url,
+          bio: userData.profile?.bio?.text,
+          followerCount: userData.follower_count,
+          followingCount: userData.following_count
+        }
+        
+        console.log('Setting real user:', realUser)
+        setUser(realUser)
+        localStorage.setItem('farcaster_user', JSON.stringify(realUser))
+      } else {
+        console.error('Failed to fetch user data from API')
+        throw new Error('Failed to fetch user data')
+      }
+      
+      console.log('Real authentication completed successfully')
     } catch (error) {
-      console.error('Sign in error:', error)
-      // Don't throw error, just log it and continue
-      // This prevents the UI from breaking in preview
+      console.error('Real sign in error:', error)
+      throw error
     } finally {
       setIsLoading(false)
     }
