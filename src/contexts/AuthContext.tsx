@@ -45,15 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Clear any old stored user data to force fresh authentication
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('farcaster_user')
-        sessionStorage.removeItem('farcaster_user')
-        // Also clear any other potential storage keys
-        Object.keys(localStorage).forEach(key => {
-          if (key.includes('farcaster') || key.includes('user')) {
-            localStorage.removeItem(key)
-          }
-        })
-        console.log('Cleared all old stored user data')
+        // Clear all possible storage locations
+        localStorage.clear()
+        sessionStorage.clear()
+        console.log('Completely cleared all stored data')
       }
       
       // Check if we're in a Farcaster environment
@@ -172,6 +167,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       console.log('Using FID for authentication:', userFid)
+      console.log('Current URL:', window.location.href)
+      console.log('User Agent:', navigator.userAgent)
+      console.log('Is in Farcaster environment:', isInFarcaster)
       
       // Add version check to force fresh authentication
       const AUTH_VERSION = '2.0' // Increment this when auth logic changes
