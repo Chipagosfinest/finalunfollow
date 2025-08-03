@@ -99,7 +99,7 @@ export default function EmbedPage() {
 
 Found ${scanResult?.veryInactiveUsers || 0} inactive users and ${scanResult?.notFollowingBack || 0} who don&apos;t follow back. This tool is 🔥
 
-Try it: https://unfollow.vercel.app/embed
+Try it: https://unfollow-tool.vercel.app/embed
 
 #farcaster #unfollow #tool`
     
@@ -119,11 +119,11 @@ ${shareText}`)
   return (
     <>
       <Head>
-        <meta property="fc:miniapp" content="https://unfollow.vercel.app" />
+        <meta property="fc:miniapp" content="https://unfollow-tool.vercel.app" />
         <meta property="fc:miniapp:version" content="1.0.0" />
-        <meta property="fc:miniapp:image" content="https://unfollow.vercel.app/embed-thumbnail.png" />
+        <meta property="fc:miniapp:image" content="https://unfollow-tool.vercel.app/embed-thumbnail.png" />
         <meta property="fc:miniapp:button" content="Analyze Follows" />
-        <meta property="fc:miniapp:action" content="https://unfollow.vercel.app/embed" />
+        <meta property="fc:miniapp:action" content="https://unfollow-tool.vercel.app/embed" />
       </Head>
 
       {isLoading ? (
@@ -242,7 +242,7 @@ ${shareText}`)
                 📤 Share Results
               </Button>
               <Button 
-                onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
+                onClick={() => window.open('https://unfollow-tool.vercel.app', '_blank')}
                 variant="outline"
                 className="w-full py-3 px-6 rounded-lg transition-colors"
                 size="lg"
@@ -315,7 +315,7 @@ ${shareText}`)
 
               {/* Open Full App */}
               <Button 
-                onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
+                onClick={() => window.open('https://unfollow-tool.vercel.app', '_blank')}
                 variant="outline"
                 className="w-full py-3 px-6 rounded-lg transition-colors"
                 size="lg"

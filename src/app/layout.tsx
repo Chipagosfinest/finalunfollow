@@ -12,11 +12,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Unfollow Tool - Farcaster Mini App',
     description: 'Analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don\'t follow you back.',
-    url: 'https://unfollow.vercel.app',
+    url: 'https://unfollow-tool.vercel.app',
     siteName: 'Unfollow Tool',
     images: [
       {
-        url: 'https://unfollow.vercel.app/thumbnail.png',
+        url: 'https://unfollow-tool.vercel.app/thumbnail.png',
         width: 1200,
         height: 630,
         alt: 'Unfollow Tool - Farcaster Mini App',
@@ -29,20 +29,20 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Unfollow Tool - Farcaster Mini App',
     description: 'Analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don\'t follow you back.',
-    images: ['https://unfollow.vercel.app/thumbnail.png'],
+    images: ['https://unfollow-tool.vercel.app/thumbnail.png'],
   },
   other: {
     // Mini App meta tags
-    'fc:miniapp': 'https://unfollow.vercel.app',
+    'fc:miniapp': 'https://unfollow-tool.vercel.app',
     'fc:miniapp:version': '1.0.0',
-    'fc:miniapp:image': 'https://unfollow.vercel.app/thumbnail.png',
+    'fc:miniapp:image': 'https://unfollow-tool.vercel.app/thumbnail.png',
     'fc:miniapp:button': 'Analyze Follows',
-    'fc:miniapp:action': 'https://unfollow.vercel.app/embed',
+    'fc:miniapp:action': 'https://unfollow-tool.vercel.app/embed',
     // Embed meta tags for feed sharing
-    'fc:frame': 'https://unfollow.vercel.app',
-    'fc:frame:image': 'https://unfollow.vercel.app/thumbnail.png',
+    'fc:frame': 'https://unfollow-tool.vercel.app',
+    'fc:frame:image': 'https://unfollow-tool.vercel.app/thumbnail.png',
     'fc:frame:button:1': 'Analyze Follows',
-    'fc:frame:post_url': 'https://unfollow.vercel.app/embed',
+    'fc:frame:post_url': 'https://unfollow-tool.vercel.app/embed',
   },
 }
 
