@@ -161,7 +161,7 @@ ${shareText}`)
             </Card>
             <Card className="text-center p-4">
               <div className="text-2xl font-bold text-orange-600">{scanResult.notFollowingBack}</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Don't Follow Back</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Don&apos;t Follow Back</div>
             </Card>
           </div>
 
