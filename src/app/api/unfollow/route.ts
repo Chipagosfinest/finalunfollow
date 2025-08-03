@@ -14,8 +14,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY
-    const NEYNAR_SIGNER_UUID = process.env.NEYNAR_SIGNER_UUID
+    const NEYNAR_API_KEY = process.env.neynar_api
+    const NEYNAR_SIGNER_UUID = process.env.neynar_signer
     
     if (!NEYNAR_API_KEY || !NEYNAR_SIGNER_UUID) {
       return NextResponse.json(

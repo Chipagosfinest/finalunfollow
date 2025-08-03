@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY
+    const NEYNAR_API_KEY = process.env.neynar_api
     
     console.log('🔍 Starting scan for FID:', fid)
     console.log('🔑 Neynar API Key configured:', !!NEYNAR_API_KEY)

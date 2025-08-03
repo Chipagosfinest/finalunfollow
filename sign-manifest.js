@@ -6,7 +6,7 @@ const FARCASTER_FID = "YOUR_FARCASTER_FID"; // Replace with your FID
 const FARCASTER_PRIVATE_KEY = "YOUR_PRIVATE_KEY"; // Replace with your private key
 
 // Manifest details
-const manifestUrl = "https://unfollow-fresh-osh9xave8-chipagosfinests-projects.vercel.app/.well-known/farcaster.json";
+const manifestUrl = "https://unfollow-7vqsoy96p-chipagosfinests-projects.vercel.app/.well-known/farcaster.json";
 const appName = "Unfollow Tool";
 const appDescription = "A powerful tool to analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back. Get insights into your social graph and maintain a cleaner feed.";
 
