@@ -46,22 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Try to get user info from the Farcaster environment
       let userFid: number | null = null
       
-      // Method 1: Try to get FID from the SDK
-      if (sdk?.actions?.getUser) {
-        try {
-          console.log('Trying sdk.actions.getUser()...')
-          const userInfo = await sdk.actions.getUser()
-          console.log('SDK getUser result:', userInfo)
-          if (userInfo && userInfo.fid) {
-            userFid = userInfo.fid
-          }
-        } catch (error) {
-          console.log('SDK getUser failed:', error)
-        }
-      }
-      
-      // Method 2: Try to get FID from window.farcaster if SDK method doesn't work
-      if (!userFid && typeof window !== 'undefined') {
+      // Method 1: Try to get FID from window.farcaster
+      if (typeof window !== 'undefined') {
         const farcasterWindow = window as FarcasterWindow
         if (farcasterWindow.farcaster?.getUser) {
           try {
@@ -77,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      // Method 3: Try to get FID from URL parameters or other sources
+      // Method 2: Try to get FID from URL parameters
       if (!userFid && typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search)
         const fidParam = urlParams.get('fid')
@@ -87,7 +73,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      // If we still don't have a FID, try a default one for testing
+      // Method 3: Try to get FID from localStorage (if previously stored)
+      if (!userFid && typeof window !== 'undefined') {
+        const storedUser = localStorage.getItem('farcaster_user')
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser)
+            if (parsedUser.fid) {
+              userFid = parsedUser.fid
+              console.log('Got FID from localStorage:', userFid)
+            }
+          } catch (error) {
+            console.log('Failed to parse stored user:', error)
+          }
+        }
+      }
+      
+      // If we still don't have a FID, use a default one for testing
       if (!userFid) {
         console.log('No FID found, using default for testing')
         userFid = 2 // Default FID for testing
