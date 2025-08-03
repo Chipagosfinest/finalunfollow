@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farcaster SDK Test Environment</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 4px;
+            padding: 2px 0;
+        }
+        .log-time {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        .log-message {
+            color: #212529;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 8px 8px 8px 0;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.secondary {
+            background: #6c757d;
+        }
+        button.secondary:hover {
+            background: #545b62;
+        }
+        .iframe-container {
+            margin-top: 24px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Farcaster SDK Test Environment</h1>
+            <p>This page simulates the Farcaster environment to test your mini app</p>
+        </div>
+
+        <div id="status" class="status">
+            <strong>Status:</strong> <span id="statusText">Initializing...</span>
+        </div>
+
+        <div>
+            <button onclick="initializeSDK()">Initialize Farcaster SDK</button>
+            <button onclick="callReady()" class="secondary">Call ready()</button>
+            <button onclick="clearLogs()" class="secondary">Clear Logs</button>
+        </div>
+
+        <div class="log" id="log">
+            <div class="log-entry">
+                <span class="log-time">[System]</span>
+                <span class="log-message">Test environment loaded</span>
+            </div>
+        </div>
+
+        <div class="iframe-container">
+            <iframe id="appFrame" src="http://localhost:3001/test"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let sdkInitialized = false;
+        let readyCalled = false;
+        const logs = [];
+
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-time">[${timestamp}]</span>
+                <span class="log-message">${message}</span>
+            `;
+            document.getElementById('log').appendChild(logEntry);
+            logs.push(`[${timestamp}] ${message}`);
+        }
+
+        function updateStatus(message, isError = false) {
+            const statusEl = document.getElementById('status');
+            const statusTextEl = document.getElementById('statusText');
+            
+            statusTextEl.textContent = message;
+            statusEl.className = `status ${isError ? 'error' : 'success'}`;
+        }
+
+        function initializeSDK() {
+            if (sdkInitialized) {
+                addLog('SDK already initialized');
+                return;
+            }
+
+            addLog('Initializing Farcaster SDK...');
+
+            // Create mock Farcaster SDK
+            window.farcaster = {
+                actions: {
+                    ready: async () => {
+                        addLog('SDK ready() method called');
+                        readyCalled = true;
+                        updateStatus('SDK ready() called successfully');
+                        return Promise.resolve();
+                    },
+                    getUser: async () => {
+                        addLog('SDK getUser() method called');
+                        return Promise.resolve({ fid: 2, username: 'testuser' });
+                    }
+                }
+            };
+
+            sdkInitialized = true;
+            updateStatus('Farcaster SDK initialized');
+            addLog('Mock Farcaster SDK created with ready() and getUser() methods');
+        }
+
+        function callReady() {
+            if (!sdkInitialized) {
+                addLog('ERROR: SDK not initialized yet');
+                updateStatus('SDK not initialized', true);
+                return;
+            }
+
+            addLog('Manually calling SDK ready()...');
+            window.farcaster.actions.ready()
+                .then(() => {
+                    addLog('SDK ready() completed successfully');
+                    updateStatus('ready() called and completed');
+                })
+                .catch((error) => {
+                    addLog(`ERROR: SDK ready() failed: ${error.message}`);
+                    updateStatus('ready() failed', true);
+                });
+        }
+
+        function clearLogs() {
+            document.getElementById('log').innerHTML = '';
+            logs.length = 0;
+            addLog('Logs cleared');
+        }
+
+        // Auto-initialize SDK after a short delay
+        setTimeout(() => {
+            initializeSDK();
+        }, 1000);
+
+        // Listen for messages from the iframe
+        window.addEventListener('message', (event) => {
+            if (event.origin === 'http://localhost:3001') {
+                addLog(`Message from app: ${JSON.stringify(event.data)}`);
+            }
+        });
+
+        // Initial setup
+        addLog('Test environment ready');
+        updateStatus('Ready to test');
+    </script>
+</body>
+</html> 
