@@ -70,7 +70,7 @@ export default function EmbedPage() {
 
 Found ${scanResult?.veryInactiveUsers || 0} inactive users and ${scanResult?.notFollowingBack || 0} who don't follow back. This tool is 🔥
 
-Try it: https://unfollow-9ifbpcoor-chipagosfinests-projects.vercel.app/embed
+Try it: https://unfollow.vercel.app/embed
 
 #farcaster #unfollow #tool`
     
@@ -125,7 +125,7 @@ ${shareText}`)
               </p>
               <Button 
                 className="w-full"
-                onClick={() => window.open('https://unfollow-9ifbpcoor-chipagosfinests-projects.vercel.app', '_blank')}
+                onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
               >
                 Open Full App
               </Button>
@@ -281,7 +281,7 @@ ${shareText}`)
                                       <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => window.open('https://unfollow-9ifbpcoor-chipagosfinests-projects.vercel.app', '_blank')}
+                    onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
                   >
                     View All ({scanResult.recommendations.length})
                   </Button>
@@ -297,7 +297,7 @@ ${shareText}`)
                       <Button 
               variant="outline" 
               size="sm"
-              onClick={() => window.open('https://unfollow-9ifbpcoor-chipagosfinests-projects.vercel.app', '_blank')}
+              onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
             >
               Open Full App
             </Button>
