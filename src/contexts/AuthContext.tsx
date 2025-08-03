@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { sdk } from '@farcaster/miniapp-sdk'
 
 interface User {
   fid: number
@@ -23,17 +24,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-interface FarcasterSDK {
-  actions?: {
-    getUser?: () => Promise<{ fid: number; username?: string }>
-    ready?: () => Promise<void>
-  }
-}
-
-interface WindowWithFarcaster extends Window {
-  farcaster?: FarcasterSDK
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -44,51 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true)
       
-      // Check if we're in a Farcaster mini app environment
-      if (typeof window !== 'undefined') {
-        const farcasterWindow = window as WindowWithFarcaster
-        const sdk = farcasterWindow.farcaster
-        
-        // Get the authenticated user's FID from the Farcaster SDK
-        if (sdk?.actions?.getUser) {
-          const userData = await sdk.actions.getUser()
-          console.log('Farcaster user data:', userData)
-          
-          if (userData && userData.fid) {
-            // Fetch detailed user info from Neynar API
-            const response = await fetch('/api/user-info', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ fid: userData.fid }),
-            })
-
-            if (!response.ok) {
-              throw new Error('Failed to fetch user data')
-            }
-
-            const neynarUserData = await response.json()
-            
-            const mockUser: User = {
-              fid: neynarUserData.fid,
-              username: neynarUserData.username,
-              displayName: neynarUserData.display_name,
-              pfpUrl: neynarUserData.pfp_url,
-              bio: neynarUserData.profile?.bio?.text,
-              followerCount: neynarUserData.follower_count,
-              followingCount: neynarUserData.following_count
-            }
-            
-            setUser(mockUser)
-            localStorage.setItem('farcaster_user', JSON.stringify(mockUser))
-            return
-          }
-        }
-      }
-      
-      // Fallback: Simulate Farcaster wallet connection
-      console.log('Falling back to simulated authentication')
+      // For now, we'll use the fallback authentication since the SDK doesn't provide getUser
+      console.log('Using fallback authentication')
       await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate wallet connection delay
       
       // For demo purposes, we'll use a different FID to avoid conflicts
