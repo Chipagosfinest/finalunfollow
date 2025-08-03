@@ -14,6 +14,7 @@ interface ScanResult {
   spamAccounts: number
   notFollowingBack: number
   veryInactiveUsers: number
+  message?: string
   recommendations: Array<{
     fid: number
     username: string
@@ -72,6 +73,8 @@ export default function EmbedPage() {
     setScanResult(null)
 
     try {
+      console.log('🔍 Starting scan for user:', user.username, 'FID:', user.fid)
+      
       const response = await fetch('/api/scan', {
         method: 'POST',
         headers: {
@@ -83,12 +86,16 @@ export default function EmbedPage() {
       const data = await response.json()
 
       if (!response.ok) {
+        console.error('❌ Scan failed:', data.error)
         throw new Error(data.error || 'Failed to scan follows')
       }
 
+      console.log('✅ Scan completed successfully:', data)
       setScanResult(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      console.error('❌ Scan error:', err)
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
+      setError(errorMessage)
     } finally {
       setIsLoadingScan(false)
     }
@@ -119,11 +126,36 @@ ${shareText}`)
   return (
     <>
       <Head>
-        <meta property="fc:miniapp" content="https://unfollow.vercel.app" />
+        {/* Farcaster Mini App Embed Metadata */}
+        <meta property="fc:miniapp" content="https://unfollow-tool.vercel.app" />
         <meta property="fc:miniapp:version" content="1.0.0" />
-        <meta property="fc:miniapp:image" content="https://unfollow.vercel.app/embed-thumbnail.png" />
+        <meta property="fc:miniapp:image" content="https://unfollow-tool.vercel.app/embed-thumbnail.png" />
         <meta property="fc:miniapp:button" content="Analyze Follows" />
-        <meta property="fc:miniapp:action" content="https://unfollow.vercel.app/embed" />
+        <meta property="fc:miniapp:action" content="https://unfollow-tool.vercel.app/embed" />
+        
+        {/* Farcaster Frame Metadata */}
+        <meta property="fc:frame" content="https://unfollow-tool.vercel.app" />
+        <meta property="fc:frame:image" content="https://unfollow-tool.vercel.app/embed-thumbnail.png" />
+        <meta property="fc:frame:button:1" content="Analyze Follows" />
+        <meta property="fc:frame:post_url" content="https://unfollow-tool.vercel.app/embed" />
+        
+        {/* Open Graph Metadata */}
+        <meta property="og:title" content="Unfollow Tool - Farcaster Mini App" />
+        <meta property="og:description" content="Analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back." />
+        <meta property="og:url" content="https://unfollow-tool.vercel.app" />
+        <meta property="og:site_name" content="Unfollow Tool" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:image" content="https://unfollow-tool.vercel.app/embed-thumbnail.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Unfollow Tool - Farcaster Mini App" />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter Card Metadata */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Unfollow Tool - Farcaster Mini App" />
+        <meta name="twitter:description" content="Analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back." />
+        <meta name="twitter:image" content="https://unfollow-tool.vercel.app/embed-thumbnail.png" />
       </Head>
 
       {isLoading ? (
@@ -200,6 +232,18 @@ ${shareText}`)
                 <div className="text-xs text-gray-600 dark:text-gray-400">Don&apos;t Follow Back</div>
               </Card>
             </div>
+
+            {/* Status Message - Only show for empty results */}
+            {scanResult.message && scanResult.recommendations.length === 0 && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-blue-800 dark:text-blue-200">{scanResult.message}</span>
+                </div>
+              </div>
+            )}
 
             {/* Recommendations */}
             <Card>
@@ -309,7 +353,16 @@ ${shareText}`)
 
               {error && (
                 <div className="text-red-600 text-sm text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div className="flex items-center gap-2 justify-center mb-2">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span className="font-medium">Analysis Failed</span>
+                  </div>
                   {error}
+                  <div className="mt-2 text-xs text-red-500">
+                    Please try again in a few moments
+                  </div>
                 </div>
               )}
 

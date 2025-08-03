@@ -82,7 +82,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('Mini App environment detected:', isInMiniApp)
       
       if (!isInMiniApp) {
-        console.log('Not in Mini App environment, showing web authentication')
+        console.log('Not in Mini App environment, using web authentication')
+        // For web version, we'll use a demo user or prompt for FID
+        const demoUser: User = {
+          fid: 1, // Demo FID
+          username: 'demo_user',
+          displayName: 'Demo User',
+          pfpUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo'
+        }
+        setUser(demoUser)
+        localStorage.setItem('farcaster_user', JSON.stringify(demoUser))
         setIsLoading(false)
         return
       }
@@ -289,8 +298,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setUser(sdkUser)
                 localStorage.setItem('farcaster_user', JSON.stringify(sdkUser))
               }
-            } catch (error) {
-              console.log('AuthContext: API call error, using SDK user data:', error)
+            } catch {
+              console.log('AuthContext: API call error, using SDK user data')
               setUser(sdkUser)
               localStorage.setItem('farcaster_user', JSON.stringify(sdkUser))
             }
