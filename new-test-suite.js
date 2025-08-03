@@ -139,31 +139,29 @@ const tests = [
   }),
 
   test('Thumbnail - Load', async () => {
-    const response = await makeRequest(`${BASE_URL}/thumbnail.html`);
+    const response = await makeRequest(`${BASE_URL}/thumbnail.png`);
     if (response.status !== 200) {
       throw new Error(`Expected status 200, got ${response.status}`);
     }
   }),
 
   test('Thumbnail - Content', async () => {
-    const response = await makeRequest(`${BASE_URL}/thumbnail.html`);
-    if (!response.data.includes('Unfollow Tool')) {
-      throw new Error('Expected content "Unfollow Tool" not found');
+    const response = await makeRequest(`${BASE_URL}/thumbnail.png`);
+    if (response.status !== 200) {
+      throw new Error(`Expected status 200, got ${response.status}`);
     }
-    if (!response.data.includes('unfollow-button')) {
-      throw new Error('Expected unfollow button styling not found');
-    }
+    // For PNG files, we just check they load successfully
   }),
 
   test('Embed Thumbnail - Load', async () => {
-    const response = await makeRequest(`${BASE_URL}/embed-thumbnail.html`);
+    const response = await makeRequest(`${BASE_URL}/embed-thumbnail.png`);
     if (response.status !== 200) {
       throw new Error(`Expected status 200, got ${response.status}`);
     }
   }),
 
   test('Icon - Load', async () => {
-    const response = await makeRequest(`${BASE_URL}/icon.html`);
+    const response = await makeRequest(`${BASE_URL}/icon.png`);
     if (response.status !== 200) {
       throw new Error(`Expected status 200, got ${response.status}`);
     }
@@ -261,15 +259,16 @@ const tests = [
   }),
 
   test('File Structure - Thumbnail Files', async () => {
-    const files = ['thumbnail.html', 'embed-thumbnail.html', 'icon.html'];
+    const files = ['thumbnail.png', 'embed-thumbnail.png', 'icon.png'];
     for (const file of files) {
       const filePath = path.join(__dirname, 'public', file);
       if (!fs.existsSync(filePath)) {
-        throw new Error(`${file} not found`);
+        throw new Error(`${file} not found - you need to create the PNG images`);
       }
-      const content = fs.readFileSync(filePath, 'utf8');
-      if (!content.includes('unfollow-button')) {
-        throw new Error(`${file} missing unfollow button styling`);
+      // Check file size to ensure it's not just a placeholder
+      const stats = fs.statSync(filePath);
+      if (stats.size < 1000) {
+        throw new Error(`${file} appears to be a placeholder - replace with actual PNG image`);
       }
     }
   }),

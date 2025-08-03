@@ -1,62 +1,59 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { FarcasterProvider } from "@/components/FarcasterProvider";
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { FarcasterProvider } from '@/components/FarcasterProvider'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "Unfollow Tool",
-  description: "Unfollow on Farcaster - Analyze your follows and identify who to unfollow",
+  title: 'Unfollow Tool - Farcaster Mini App',
+  description: 'Analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don\'t follow you back.',
   openGraph: {
-    title: "Unfollow Tool",
-    description: "Unfollow on Farcaster - Analyze your follows and identify who to unfollow",
-    url: "https://unfollow.vercel.app",
-    siteName: "Unfollow Tool",
+    title: 'Unfollow Tool - Farcaster Mini App',
+    description: 'Analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don\'t follow you back.',
+    url: 'https://unfollow.vercel.app',
+    siteName: 'Unfollow Tool',
     images: [
       {
-        url: "https://unfollow.vercel.app/thumbnail.png",
+        url: 'https://unfollow.vercel.app/thumbnail.png',
         width: 1200,
         height: 630,
-        alt: "Unfollow Tool",
+        alt: 'Unfollow Tool - Farcaster Mini App',
       },
     ],
-    locale: "en_US",
-    type: "website",
+    locale: 'en_US',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Unfollow Tool",
-    description: "Unfollow on Farcaster - Analyze your follows and identify who to unfollow",
-    images: ["https://unfollow.vercel.app/thumbnail.png"],
+    card: 'summary_large_image',
+    title: 'Unfollow Tool - Farcaster Mini App',
+    description: 'Analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don\'t follow you back.',
+    images: ['https://unfollow.vercel.app/thumbnail.png'],
   },
   other: {
-    "fc:frame": "vNext",
-    "fc:frame:image": "https://unfollow.vercel.app/embed-thumbnail.png",
-    "fc:frame:button:1": "Try Unfollow Tool",
-    "fc:frame:post_url": "https://unfollow.vercel.app/embed",
+    // Mini App meta tags
+    'fc:miniapp': 'https://unfollow.vercel.app',
+    'fc:miniapp:version': '1.0.0',
+    'fc:miniapp:image': 'https://unfollow.vercel.app/thumbnail.png',
+    'fc:miniapp:button': 'Analyze Follows',
+    'fc:miniapp:action': 'https://unfollow.vercel.app/embed',
+    // Embed meta tags for feed sharing
+    'fc:frame': 'https://unfollow.vercel.app',
+    'fc:frame:image': 'https://unfollow.vercel.app/thumbnail.png',
+    'fc:frame:button:1': 'Analyze Follows',
+    'fc:frame:post_url': 'https://unfollow.vercel.app/embed',
   },
-};
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={inter.className}>
         <FarcasterProvider>
           <AuthProvider>
             {children}
@@ -64,5 +61,5 @@ export default function RootLayout({
         </FarcasterProvider>
       </body>
     </html>
-  );
+  )
 }

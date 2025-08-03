@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
       }
       
       // Final fallback to mock data
-      return await generateMockAnalysis(user)
+      return await generateMockAnalysis()
     }
 
     const followingData = await followingResponse.json()
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fallback to mock data if no following found
-    return await generateMockAnalysis(user)
+    return await generateMockAnalysis()
 
   } catch (error) {
     console.error('Scan error:', error)
@@ -287,7 +287,7 @@ async function analyzeRealFollowing(following: FarcasterUser[]) {
   return NextResponse.json(analysis)
 }
 
-async function generateMockAnalysis(_user: FarcasterUser) {
+async function generateMockAnalysis() {
   // Fallback mock data for demo purposes
   const sampleUsers = [
     { 

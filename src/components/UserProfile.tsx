@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/contexts/AuthContext"
+import Image from 'next/image'
 
 export function UserProfile() {
   const { user, signOut } = useAuth()
@@ -19,10 +20,12 @@ export function UserProfile() {
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-4 mb-4">
-          <img 
+          <Image 
             src={user.pfpUrl} 
             alt={`${user.displayName} profile`}
-            className="w-12 h-12 rounded-full object-cover"
+            width={48}
+            height={48}
+            className="rounded-full object-cover"
             onError={(e) => {
               e.currentTarget.src = 'https://i.seadn.io/gae/sYAr036bd0bRpj7OX6B-F-MqLGznVkK3--DSneL_BT5GX4NZJ3Zu91PgjpD9-xuVJtHq0qirJfPZeMKrahz8Us2Tj_X8qdNPYC-imqs?w=500&auto=format'
             }}

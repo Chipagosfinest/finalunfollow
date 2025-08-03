@@ -1,47 +1,48 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useAuth } from "@/contexts/AuthContext"
-import { useFarcaster } from "@/components/FarcasterProvider"
+import { useEffect, useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
+import { useFarcaster } from '@/components/FarcasterProvider'
 import { sdk } from '@farcaster/miniapp-sdk'
+
+interface DebugInfo {
+  timestamp: string
+  userAgent: string
+  url: string
+  isInFarcaster: boolean
+  windowFarcasterUser?: unknown
+  windowFarcasterError?: unknown
+}
+
+interface SdkInfo {
+  sdk: boolean
+  sdkActions: string[]
+  windowFarcaster: boolean
+  url: string
+  referrer: string
+}
 
 export default function TestPage() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const { isReady, error: farcasterError } = useFarcaster()
-  const [debugInfo, setDebugInfo] = useState<any>({})
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null)
 
   useEffect(() => {
-    const gatherDebugInfo = async () => {
-      const info: any = {
+    const gatherDebugInfo = async (): Promise<void> => {
+      const info: DebugInfo = {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
         url: window.location.href,
-        hostname: window.location.hostname,
-        referrer: document.referrer,
         isInFarcaster: window.location.hostname.includes('farcaster') || 
                        window.location.hostname.includes('warpcast') ||
                        document.referrer.includes('farcaster') ||
                        document.referrer.includes('warpcast'),
-        sdkAvailable: !!sdk,
-        sdkActions: sdk?.actions ? Object.keys(sdk.actions) : [],
-        windowFarcaster: !!(window as any).farcaster,
-        localStorage: typeof window !== 'undefined' ? localStorage.getItem('farcaster_user') : null,
-      }
-
-      // Try to get user info from SDK
-      if (sdk?.actions?.getUser) {
-        try {
-          const userInfo = await sdk.actions.getUser()
-          info.sdkUserInfo = userInfo
-        } catch (error) {
-          info.sdkUserError = error
-        }
       }
 
       // Try to get user info from window.farcaster
-      if ((window as any).farcaster?.getUser) {
+      if (typeof window !== 'undefined' && (window as unknown as { farcaster?: { getUser?: () => Promise<unknown> } }).farcaster?.getUser) {
         try {
-          const userInfo = await (window as any).farcaster.getUser()
+          const userInfo = await (window as unknown as { farcaster?: { getUser?: () => Promise<unknown> } }).farcaster!.getUser!()
           info.windowFarcasterUser = userInfo
         } catch (error) {
           info.windowFarcasterError = error
@@ -93,10 +94,10 @@ export default function TestPage() {
             <div className="space-y-4">
               <button 
                 onClick={() => {
-                  const info = {
+                  const info: SdkInfo = {
                     sdk: !!sdk,
                     sdkActions: sdk?.actions ? Object.keys(sdk.actions) : [],
-                    windowFarcaster: !!(window as any).farcaster,
+                    windowFarcaster: !!(window as unknown as { farcaster?: unknown }).farcaster,
                     url: window.location.href,
                     referrer: document.referrer,
                   }
@@ -111,29 +112,19 @@ export default function TestPage() {
               <button 
                 onClick={async () => {
                   try {
-                    if (sdk?.actions?.getUser) {
-                      const user = await sdk.actions.getUser()
-                      alert(`SDK getUser result: ${JSON.stringify(user)}`)
+                    if (sdk?.actions?.signIn) {
+                      const result = await sdk.actions.signIn({ nonce: 'test-nonce-' + Date.now() })
+                      alert(`SDK signIn result: ${JSON.stringify(result)}`)
                     } else {
-                      alert('SDK getUser not available')
+                      alert('SDK signIn not available')
                     }
                   } catch (error) {
-                    alert(`SDK getUser error: ${error}`)
+                    alert(`SDK signIn error: ${error}`)
                   }
                 }}
-                className="bg-green-500 text-white px-4 py-2 rounded ml-2"
+                className="bg-green-500 text-white px-4 py-2 rounded"
               >
-                Test SDK getUser
-              </button>
-              
-              <button 
-                onClick={() => {
-                  localStorage.removeItem('farcaster_user')
-                  alert('Cleared localStorage. Please refresh the page and try signing in again.')
-                }}
-                className="bg-red-500 text-white px-4 py-2 rounded ml-2"
-              >
-                Clear Stored User
+                Test SDK signIn
               </button>
             </div>
           </div>

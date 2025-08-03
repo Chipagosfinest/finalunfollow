@@ -172,23 +172,18 @@ const tests = [
   }),
 
   test('Thumbnail Files - New Design', async () => {
-    const files = ['thumbnail.html', 'embed-thumbnail.html', 'icon.html'];
+    const files = ['thumbnail.png', 'embed-thumbnail.png', 'icon.png'];
     
     for (const file of files) {
       const filePath = path.join(__dirname, 'public', file);
-      const content = fs.readFileSync(filePath, 'utf8');
-      
-      // Check that new design elements are present
-      if (!content.includes('unfollow-button')) {
-        throw new Error(`Unfollow button styling not found in ${file}`);
+      if (!fs.existsSync(filePath)) {
+        throw new Error(`${file} not found - you need to create the PNG images`);
       }
       
-      if (!content.includes('#FFB6C1')) {
-        throw new Error(`Light pink color not found in ${file}`);
-      }
-      
-      if (!content.includes('hand')) {
-        throw new Error(`Hand element not found in ${file}`);
+      // Check file size to ensure it's not just a placeholder
+      const stats = fs.statSync(filePath);
+      if (stats.size < 1000) {
+        throw new Error(`${file} appears to be a placeholder - replace with actual PNG image`);
       }
     }
   }),

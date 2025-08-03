@@ -40,39 +40,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async () => {
     try {
       setIsLoading(true)
-      
       console.log('Starting real Farcaster authentication...')
-      
-      // Clear any old stored user data to force fresh authentication
-      if (typeof window !== 'undefined') {
-        // Clear all possible storage locations
-        localStorage.clear()
-        sessionStorage.clear()
-        console.log('Completely cleared all stored data')
-      }
-      
-      // Check if we're in a Farcaster environment
-      const isInFarcaster = typeof window !== 'undefined' && 
-        (window.location.hostname.includes('farcaster') || 
-         window.location.hostname.includes('warpcast') ||
-         window.location.hostname.includes('vercel.app') ||
-         document.referrer.includes('farcaster') ||
-         document.referrer.includes('warpcast') ||
-         // Check if we're in a frame or embedded context
-         window.location !== window.parent.location ||
-         // Check for Farcaster-specific user agent
-         navigator.userAgent.includes('Farcaster') ||
-         navigator.userAgent.includes('Warpcast'))
-      
-      console.log('Farcaster environment detected:', isInFarcaster)
-      console.log('Current URL:', window.location.href)
-      console.log('User Agent:', navigator.userAgent)
-      console.log('Referrer:', document.referrer)
+
+      // Check if we're in a Mini App environment using the proper SDK method
+      const isInMiniApp = await sdk.isInMiniApp()
+      console.log('Mini App environment detected:', isInMiniApp)
       
       let userFid: number | null = null
       
-      // Method 1: Try to get FID from window.farcaster in Farcaster environment
-      if (isInFarcaster && typeof window !== 'undefined') {
+      // Method 1: Try to use the official SDK signIn method
+      if (isInMiniApp && sdk?.actions?.signIn) {
+        try {
+          console.log('Trying SDK signIn()...')
+          const signInResult = await sdk.actions.signIn({ nonce: 'auth-nonce-' + Date.now() })
+          console.log('SDK signIn result:', signInResult)
+          
+          // The signIn result might not contain FID directly, so we'll try other methods
+          // to get the user FID after successful sign in
+        } catch (error) {
+          console.log('SDK signIn failed:', error)
+        }
+      }
+      
+      // Method 2: Try to get FID from window.farcaster in Mini App environment
+      if (!userFid && isInMiniApp && typeof window !== 'undefined') {
         const farcasterWindow = window as FarcasterWindow
         if (farcasterWindow.farcaster?.getUser) {
           try {
@@ -88,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      // Method 2: Try to get FID from URL parameters
+      // Method 3: Try to get FID from URL parameters
       if (!userFid && typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search)
         const fidParam = urlParams.get('fid')
@@ -98,19 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      // Method 2.5: Try to get FID from URL hash (for frame embeds)
+      // Method 4: Try to get FID from localStorage (if previously stored)
       if (!userFid && typeof window !== 'undefined') {
-        const hash = window.location.hash
-        const fidMatch = hash.match(/fid=(\d+)/)
-        if (fidMatch) {
-          userFid = parseInt(fidMatch[1])
-          console.log('Got FID from URL hash:', userFid)
-        }
-      }
-      
-      // Method 3: Try to get FID from localStorage (if previously stored)
-      // Only use localStorage if we're not in a Farcaster environment
-      if (!userFid && typeof window !== 'undefined' && !isInFarcaster) {
         const storedUser = localStorage.getItem('farcaster_user')
         if (storedUser) {
           try {
@@ -125,60 +105,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      // If we're in Farcaster environment but don't have a FID, try to get it from the SDK
-      if (!userFid && isInFarcaster) {
-        console.log('In Farcaster environment, attempting to get user info from SDK...')
-        try {
-          // Try to get user info from the official Farcaster SDK
-          if (sdk?.actions?.getUser) {
-            const userInfo = await sdk.actions.getUser()
-            console.log('SDK getUser result:', userInfo)
-            if (userInfo && userInfo.fid) {
-              userFid = userInfo.fid
-              console.log('Got FID from SDK:', userFid)
-            }
-          }
-        } catch (error) {
-          console.log('SDK getUser failed:', error)
-        }
-        
-        // If still no FID, try to get it from the URL hash or other methods
-        if (!userFid && typeof window !== 'undefined') {
-          // Check if FID is in the URL hash
-          const hash = window.location.hash
-          const fidMatch = hash.match(/fid=(\d+)/)
-          if (fidMatch) {
-            userFid = parseInt(fidMatch[1])
-            console.log('Got FID from URL hash:', userFid)
-          }
-        }
-        
-        // If still no FID, we can't authenticate
-        if (!userFid) {
-          console.log('No FID found in Farcaster environment')
-          // For now, we'll throw an error, but in the future we might want to show a different UI
-          throw new Error('Unable to get user FID from Farcaster environment. Please try refreshing the page or accessing the app directly.')
-        }
-      }
-      
+      // If we don't have a FID, show a user-friendly message instead of throwing an error
       if (!userFid) {
-        console.log('No FID found, authentication failed')
-        throw new Error('Authentication failed - no user FID available')
+        console.log('No FID found, showing authentication prompt')
+        // Don't throw an error - let the UI handle this gracefully
+        setIsLoading(false)
+        return
       }
       
       console.log('Using FID for authentication:', userFid)
-      console.log('Current URL:', window.location.href)
-      console.log('User Agent:', navigator.userAgent)
-      console.log('Is in Farcaster environment:', isInFarcaster)
-      
-      // Add version check to force fresh authentication
-      const AUTH_VERSION = '2.0' // Increment this when auth logic changes
-      const storedVersion = localStorage.getItem('auth_version')
-      if (storedVersion !== AUTH_VERSION) {
-        localStorage.removeItem('farcaster_user')
-        localStorage.setItem('auth_version', AUTH_VERSION)
-        console.log('Auth version updated, cleared old data')
-      }
       
       // Fetch user data using the FID
       const response = await fetch('/api/user-info', {
@@ -242,7 +177,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    refreshUser()
+    const initializeAuth = async () => {
+      try {
+        // Check if we're in a Mini App environment
+        const isInMiniApp = await sdk.isInMiniApp()
+        console.log('AuthContext: Mini App environment detected:', isInMiniApp)
+        
+        // If we're in a Mini App, try to authenticate automatically
+        if (isInMiniApp) {
+          console.log('AuthContext: Attempting automatic authentication in Mini App...')
+          await signIn()
+        } else {
+          // In regular web environment, just refresh stored user
+          refreshUser()
+        }
+      } catch (error) {
+        console.error('AuthContext: Initialization error:', error)
+        // Fall back to refreshing stored user
+        refreshUser()
+      }
+    }
+    
+    initializeAuth()
   }, [])
 
   const value: AuthContextType = {

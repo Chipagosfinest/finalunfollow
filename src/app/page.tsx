@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAuth } from "@/contexts/AuthContext"
 import { LoginButton } from "@/components/LoginButton"
 import { UserProfile } from "@/components/UserProfile"
+import Image from 'next/image'
 
 interface ScanResult {
   totalFollows: number
@@ -547,7 +548,7 @@ ${shareText}`)
                 </div>
 
                 {/* User List */}
-                {currentUsers.map((rec, index) => (
+                {currentUsers.map((rec) => (
                   <div key={rec.fid} className="flex items-start gap-4 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
                     {/* Selection Checkbox */}
                     <div className="flex-shrink-0 mt-2">
@@ -561,10 +562,12 @@ ${shareText}`)
                     
                     {/* Profile Picture */}
                     <div className="flex-shrink-0">
-                      <img 
+                      <Image 
                         src={rec.pfp_url} 
                         alt={`${rec.display_name} profile`}
-                        className="w-12 h-12 rounded-full object-cover"
+                        width={48}
+                        height={48}
+                        className="rounded-full object-cover"
                         onError={(e) => {
                           e.currentTarget.src = 'https://i.seadn.io/gae/sYAr036bd0bRpj7OX6B-F-MqLGznVkK3--DSneL_BT5GX4NZJ3Zu91PgjpD9-xuVJtHq0qirJfPZeMKrahz8Us2Tj_X8qdNPYC-imqs?w=500&auto=format'
                         }}
