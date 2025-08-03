@@ -125,6 +125,16 @@ export default function TestPage() {
               >
                 Test SDK getUser
               </button>
+              
+              <button 
+                onClick={() => {
+                  localStorage.removeItem('farcaster_user')
+                  alert('Cleared localStorage. Please refresh the page and try signing in again.')
+                }}
+                className="bg-red-500 text-white px-4 py-2 rounded ml-2"
+              >
+                Clear Stored User
+              </button>
             </div>
           </div>
         </div>

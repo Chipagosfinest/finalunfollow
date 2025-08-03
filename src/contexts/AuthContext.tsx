@@ -43,15 +43,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       console.log('Starting real Farcaster authentication...')
       
+      // Clear any old stored user data to force fresh authentication
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('farcaster_user')
+        console.log('Cleared old stored user data')
+      }
+      
       // Check if we're in a Farcaster environment
       const isInFarcaster = typeof window !== 'undefined' && 
         (window.location.hostname.includes('farcaster') || 
          window.location.hostname.includes('warpcast') ||
          window.location.hostname.includes('vercel.app') ||
          document.referrer.includes('farcaster') ||
-         document.referrer.includes('warpcast'))
+         document.referrer.includes('warpcast') ||
+         // Check if we're in a frame or embedded context
+         window.location !== window.parent.location ||
+         // Check for Farcaster-specific user agent
+         navigator.userAgent.includes('Farcaster') ||
+         navigator.userAgent.includes('Warpcast'))
       
       console.log('Farcaster environment detected:', isInFarcaster)
+      console.log('Current URL:', window.location.href)
+      console.log('User Agent:', navigator.userAgent)
+      console.log('Referrer:', document.referrer)
       
       let userFid: number | null = null
       
@@ -93,7 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Method 3: Try to get FID from localStorage (if previously stored)
-      if (!userFid && typeof window !== 'undefined') {
+      // Only use localStorage if we're not in a Farcaster environment
+      if (!userFid && typeof window !== 'undefined' && !isInFarcaster) {
         const storedUser = localStorage.getItem('farcaster_user')
         if (storedUser) {
           try {
