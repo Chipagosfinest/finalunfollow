@@ -55,56 +55,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
-<<<<<<< HEAD
     const NEYNAR_API_KEY = process.env.neynar_api
-    
-    console.log('🔍 Starting scan for FID:', fid)
-    console.log('🔑 Neynar API Key configured:', !!NEYNAR_API_KEY)
-    
-    if (!NEYNAR_API_KEY) {
-      console.error('❌ Neynar API key not configured')
-      return NextResponse.json(
-        { error: 'Neynar API key not configured. Please check your environment variables.' },
-=======
-    const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY
     
     if (!NEYNAR_API_KEY) {
       return NextResponse.json(
         { error: 'Neynar API key not configured' },
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
         { status: 500 }
       )
     }
 
     // First, get the user's basic info to verify the FID
-<<<<<<< HEAD
-    console.log('👤 Fetching user info from Neynar...')
-=======
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
     const userResponse = await fetch(
       `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`,
       {
         headers: {
           'accept': 'application/json',
-<<<<<<< HEAD
-          'x-api-key': NEYNAR_API_KEY
-        },
-        // Add timeout to prevent hanging requests
-        signal: AbortSignal.timeout(10000) // 10 second timeout
-=======
           'api_key': NEYNAR_API_KEY
         }
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
       }
     )
 
     if (!userResponse.ok) {
       const errorText = await userResponse.text()
-<<<<<<< HEAD
-      console.error('❌ Neynar API error:', userResponse.status, errorText)
-=======
       console.error('Neynar API error:', userResponse.status, errorText)
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
       
       if (userResponse.status === 404) {
         return NextResponse.json(
@@ -120,15 +93,7 @@ export async function POST(request: NextRequest) {
         )
       }
       
-<<<<<<< HEAD
-      // If Neynar API fails, return error
-      return NextResponse.json(
-        { error: 'Unable to connect to Farcaster data. Please try again later.' },
-        { status: 503 }
-      )
-=======
       throw new Error(`Neynar API error: ${userResponse.status} - ${errorText}`)
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
     }
 
     const userData = await userResponse.json()
@@ -141,20 +106,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-<<<<<<< HEAD
-    console.log('✅ User info retrieved:', user.username)
-    
-    // Get the user's actual following list using the correct Neynar API endpoint
-    console.log('📋 Fetching following list...')
-    const followingResponse = await fetch(
-      `https://api.neynar.com/v2/farcaster/following?fid=${fid}&viewer_fid=${fid}&sort_type=desc_chron&limit=100`,
-      {
-        headers: {
-          'accept': 'application/json',
-          'x-api-key': NEYNAR_API_KEY
-        },
-        signal: AbortSignal.timeout(15000) // 15 second timeout
-=======
     console.log('User info:', JSON.stringify(user, null, 2))
     
     // Get the user's actual following list
@@ -165,21 +116,11 @@ export async function POST(request: NextRequest) {
           'accept': 'application/json',
           'api_key': NEYNAR_API_KEY
         }
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
       }
     )
 
     if (!followingResponse.ok) {
       const errorText = await followingResponse.text()
-<<<<<<< HEAD
-      console.error('❌ Following API error:', followingResponse.status, errorText)
-      
-      // If following endpoint fails, return error
-      return NextResponse.json(
-        { error: 'Unable to fetch following data. Please try again later.' },
-        { status: 503 }
-      )
-=======
       console.error('Following API error:', followingResponse.status, errorText)
       
       // If following endpoint fails, try to get at least some real user data
@@ -216,99 +157,11 @@ export async function POST(request: NextRequest) {
       
       // Final fallback to mock data
       return await generateMockAnalysis()
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
     }
 
     const followingData = await followingResponse.json()
     const following = followingData.users || []
     
-<<<<<<< HEAD
-    console.log(`✅ Found ${following.length} users in following list`)
-
-    // Get detailed info for all following users (in batches to avoid rate limits)
-    if (following.length > 0) {
-      console.log('🔍 Getting detailed user info...')
-      
-      // Process in batches of 50 to avoid rate limits
-      const batchSize = 50
-      const batches = []
-      for (let i = 0; i < following.length; i += batchSize) {
-        batches.push(following.slice(i, i + batchSize))
-      }
-      
-      const allDetailedUsers: FarcasterUser[] = []
-      
-      for (let i = 0; i < batches.length; i++) {
-        const batch = batches[i]
-        // Extract user data from the nested structure
-        const users = batch.map((item: { user?: FarcasterUser } & FarcasterUser) => item.user || item)
-        const fids = users.map((u: FarcasterUser) => u.fid).join(',')
-        
-        console.log(`📦 Processing batch ${i + 1}/${batches.length} (${batch.length} users)`)
-        
-        const bulkUserResponse = await fetch(
-          `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fids}`,
-          {
-            headers: {
-              'accept': 'application/json',
-              'x-api-key': NEYNAR_API_KEY
-            },
-            signal: AbortSignal.timeout(10000)
-          }
-        )
-
-        if (bulkUserResponse.ok) {
-          const bulkUserData = await bulkUserResponse.json()
-          const detailedUsers = bulkUserData.users || []
-          allDetailedUsers.push(...detailedUsers)
-          console.log(`✅ Got detailed info for ${detailedUsers.length} users in batch ${i + 1}`)
-        } else {
-          console.error(`❌ Batch ${i + 1} failed:`, bulkUserResponse.status)
-          // Continue with other batches
-        }
-        
-        // Add small delay between batches to avoid rate limits
-        if (i < batches.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 100))
-        }
-      }
-      
-      console.log(`✅ Total detailed users: ${allDetailedUsers.length}`)
-      
-      if (allDetailedUsers.length > 0) {
-        // Analyze real following data with enhanced profile info
-        return await analyzeRealFollowing(allDetailedUsers)
-      }
-    }
-
-    // If no following found, return empty analysis
-    console.log('⚠️ No following data found')
-    return NextResponse.json({
-      totalFollows: 0,
-      inactiveUsers: 0,
-      spamAccounts: 0,
-      notFollowingBack: 0,
-      veryInactiveUsers: 0,
-      recommendations: [],
-      message: 'No following data found. You may not be following anyone yet.'
-    })
-
-
-
-  } catch (error) {
-    console.error('❌ Scan error:', error)
-    
-    // Check if it's a timeout or network error
-    if (error instanceof Error) {
-      if (error.name === 'AbortError' || error.message.includes('fetch')) {
-        return NextResponse.json(
-          { error: 'Network timeout. Please check your connection and try again.' },
-          { status: 408 }
-        )
-      }
-    }
-    
-=======
     console.log(`Found ${following.length} users in following list`)
 
     // Get detailed info for all following users
@@ -338,7 +191,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Scan error:', error)
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
     return NextResponse.json(
       { error: 'Failed to scan follows. Please try again.' },
       { status: 500 }
@@ -368,25 +220,11 @@ async function analyzeRealFollowing(following: FarcasterUser[]) {
     }>
   }
 
-<<<<<<< HEAD
-  console.log(`🔍 Analyzing ${following.length} users for recommendations`)
-
-=======
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
   // For each following user, analyze their activity
   for (const follow of following) {
     const lastActive = follow.last_active || Date.now() - (30 * 24 * 60 * 60 * 1000) // Default to 30 days ago
     const daysSinceActive = (Date.now() - lastActive) / (1000 * 60 * 60 * 24)
     
-<<<<<<< HEAD
-    // Ensure we have a profile image - use DiceBear as fallback
-    const profileImage = follow.pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${follow.fid}`
-    const bio = follow.profile?.bio?.text || 'No bio available'
-    
-    console.log(`📊 Analyzing ${follow.username} (${follow.fid}): ${daysSinceActive.toFixed(1)} days inactive`)
-    
-=======
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
     // Check for very inactive users (60+ days)
     if (daysSinceActive > 60) {
       analysis.veryInactiveUsers++
@@ -394,13 +232,8 @@ async function analyzeRealFollowing(following: FarcasterUser[]) {
         fid: follow.fid,
         username: follow.username,
         display_name: follow.display_name,
-<<<<<<< HEAD
-        pfp_url: profileImage,
-        bio: bio,
-=======
         pfp_url: follow.pfp_url,
         bio: follow.profile?.bio?.text || '',
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
         follower_count: follow.follower_count || 0,
         following_count: follow.following_count || 0,
         last_active: lastActive,
@@ -418,13 +251,8 @@ async function analyzeRealFollowing(following: FarcasterUser[]) {
           fid: follow.fid,
           username: follow.username,
           display_name: follow.display_name,
-<<<<<<< HEAD
-          pfp_url: profileImage,
-          bio: bio,
-=======
           pfp_url: follow.pfp_url,
           bio: follow.profile?.bio?.text || '',
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
           follower_count: follow.follower_count || 0,
           following_count: follow.following_count || 0,
           last_active: lastActive,
@@ -443,41 +271,19 @@ async function analyzeRealFollowing(following: FarcasterUser[]) {
           fid: follow.fid,
           username: follow.username,
           display_name: follow.display_name,
-<<<<<<< HEAD
-          pfp_url: profileImage,
-          bio: bio,
-=======
           pfp_url: follow.pfp_url,
           bio: follow.profile?.bio?.text || '',
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
           follower_count: follow.follower_count || 0,
           following_count: follow.following_count || 0,
           last_active: lastActive,
           follows_back: false,
           reason: `Inactive for ${Math.floor(daysSinceActive)} days`,
           days_inactive: Math.floor(daysSinceActive)
-<<<<<<< HEAD
-      })
-=======
         })
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
       }
     }
   }
 
-<<<<<<< HEAD
-  // Sort recommendations by days inactive (most inactive first)
-  analysis.recommendations.sort((a, b) => b.days_inactive - a.days_inactive)
-  
-  // Limit to top 10 recommendations
-  analysis.recommendations = analysis.recommendations.slice(0, 10)
-
-  console.log(`✅ Analysis complete: ${analysis.recommendations.length} recommendations found`)
-  return NextResponse.json(analysis)
-}
-
- 
-=======
   return NextResponse.json(analysis)
 }
 
@@ -544,4 +350,3 @@ async function generateMockAnalysis() {
 
   return NextResponse.json(analysis)
 } 
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497

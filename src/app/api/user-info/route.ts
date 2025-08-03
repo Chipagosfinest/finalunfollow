@@ -11,11 +11,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-<<<<<<< HEAD
     const NEYNAR_API_KEY = process.env.neynar_api
-=======
-    const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY
->>>>>>> 5ef29b6bf689da319bf2e4f6cc2fc769b6262497
     
     if (!NEYNAR_API_KEY) {
       console.log('Neynar API key not configured, using fallback data')
