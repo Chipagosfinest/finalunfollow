@@ -22,6 +22,13 @@ interface AuthContextType {
   refreshUser: () => Promise<void>
 }
 
+// Define the Farcaster window interface
+interface FarcasterWindow extends Window {
+  farcaster?: {
+    getUser?: () => Promise<{ fid?: number }>
+  }
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -54,16 +61,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Method 2: Try to get FID from window.farcaster if SDK method doesn't work
-      if (!userFid && typeof window !== 'undefined' && (window as any).farcaster) {
-        try {
-          console.log('Trying window.farcaster.getUser()...')
-          const userInfo = await (window as any).farcaster.getUser()
-          console.log('Window farcaster getUser result:', userInfo)
-          if (userInfo && userInfo.fid) {
-            userFid = userInfo.fid
+      if (!userFid && typeof window !== 'undefined') {
+        const farcasterWindow = window as FarcasterWindow
+        if (farcasterWindow.farcaster?.getUser) {
+          try {
+            console.log('Trying window.farcaster.getUser()...')
+            const userInfo = await farcasterWindow.farcaster.getUser()
+            console.log('Window farcaster getUser result:', userInfo)
+            if (userInfo && userInfo.fid) {
+              userFid = userInfo.fid
+            }
+          } catch (error) {
+            console.log('Window farcaster getUser failed:', error)
           }
-        } catch (error) {
-          console.log('Window farcaster getUser failed:', error)
         }
       }
       
