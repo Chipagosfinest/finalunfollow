@@ -2,14 +2,14 @@
   "miniapp": {
     "version": "1",
     "name": "Unfollow Tool",
-    "iconUrl": "https://unfollow-tool.vercel.app/icon.png",
-    "homeUrl": "https://unfollow-tool.vercel.app/embed",
-    "splashImageUrl": "https://unfollow-tool.vercel.app/icon.png",
+    "iconUrl": "https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/icon.png",
+    "homeUrl": "https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/embed",
+    "splashImageUrl": "https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/icon.png",
     "splashBackgroundColor": "#6366f1",
     "subtitle": "Clean up your Farcaster follows",
     "description": "A powerful tool to analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back. Get insights into your social graph and maintain a cleaner feed.",
     "screenshotUrls": [
-      "https://unfollow-tool.vercel.app/thumbnail.png"
+      "https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/thumbnail.png"
     ],
     "primaryCategory": "utility",
     "tags": [
@@ -21,11 +21,11 @@
       "analytics",
       "cleanup"
     ],
-    "heroImageUrl": "https://unfollow-tool.vercel.app/thumbnail.png",
+    "heroImageUrl": "https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/thumbnail.png",
     "tagline": "Clean up your Farcaster follows with smart analytics",
     "ogTitle": "Unfollow Tool - Clean Your Farcaster Feed",
     "ogDescription": "Analyze your follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back. Get insights into your social graph.",
-    "ogImageUrl": "https://unfollow-tool.vercel.app/thumbnail.png",
+    "ogImageUrl": "https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/thumbnail.png",
     "requiredCapabilities": [
       "actions.signIn",
       "context.user",

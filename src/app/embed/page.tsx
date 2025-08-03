@@ -127,25 +127,25 @@ ${shareText}`)
     <>
       <Head>
         {/* Farcaster Mini App Embed Metadata */}
-        <meta property="fc:miniapp" content="https://unfollow-tool.vercel.app" />
+        <meta property="fc:miniapp" content="https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app" />
         <meta property="fc:miniapp:version" content="1.0.0" />
-        <meta property="fc:miniapp:image" content="https://unfollow-tool.vercel.app/embed-thumbnail.png" />
+        <meta property="fc:miniapp:image" content="https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/embed-thumbnail.png" />
         <meta property="fc:miniapp:button" content="Analyze Follows" />
-        <meta property="fc:miniapp:action" content="https://unfollow-tool.vercel.app/embed" />
+        <meta property="fc:miniapp:action" content="https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/embed" />
         
         {/* Farcaster Frame Metadata */}
-        <meta property="fc:frame" content="https://unfollow-tool.vercel.app" />
-        <meta property="fc:frame:image" content="https://unfollow-tool.vercel.app/embed-thumbnail.png" />
+        <meta property="fc:frame" content="https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app" />
+        <meta property="fc:frame:image" content="https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/embed-thumbnail.png" />
         <meta property="fc:frame:button:1" content="Analyze Follows" />
-        <meta property="fc:frame:post_url" content="https://unfollow-tool.vercel.app/embed" />
+        <meta property="fc:frame:post_url" content="https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/embed" />
         
         {/* Open Graph Metadata */}
         <meta property="og:title" content="Unfollow Tool - Farcaster Mini App" />
         <meta property="og:description" content="Analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back." />
-        <meta property="og:url" content="https://unfollow-tool.vercel.app" />
+        <meta property="og:url" content="https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app" />
         <meta property="og:site_name" content="Unfollow Tool" />
         <meta property="og:locale" content="en_US" />
-        <meta property="og:image" content="https://unfollow-tool.vercel.app/embed-thumbnail.png" />
+        <meta property="og:image" content="https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/embed-thumbnail.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="Unfollow Tool - Farcaster Mini App" />
@@ -155,7 +155,7 @@ ${shareText}`)
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Unfollow Tool - Farcaster Mini App" />
         <meta name="twitter:description" content="Analyze your Farcaster follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back." />
-        <meta name="twitter:image" content="https://unfollow-tool.vercel.app/embed-thumbnail.png" />
+        <meta name="twitter:image" content="https://unfollow-aid4c1egh-chipagosfinests-projects.vercel.app/embed-thumbnail.png" />
       </Head>
 
       {isLoading ? (
