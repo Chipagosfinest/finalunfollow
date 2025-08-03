@@ -3,7 +3,7 @@
 const https = require('https');
 const http = require('http');
 
-const BASE_URL = 'https://unfollow-4jelr772j-chipagosfinests-projects.vercel.app';
+const BASE_URL = 'https://unfollow-cdltvkxdq-chipagosfinests-projects.vercel.app';
 
 // Test configuration
 const TESTS = [

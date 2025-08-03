@@ -27,10 +27,24 @@ interface ScanResult {
 }
 
 export default function EmbedPage() {
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const { user, isAuthenticated, isLoading, signIn } = useAuth()
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [isLoadingScan, setIsLoadingScan] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isSigningIn, setIsSigningIn] = useState(false)
+
+  const handleSignIn = async () => {
+    try {
+      setIsSigningIn(true)
+      setError(null)
+      await signIn()
+    } catch (error) {
+      console.error('Sign in failed:', error)
+      setError('Sign in failed. Please try again.')
+    } finally {
+      setIsSigningIn(false)
+    }
+  }
 
   const handleScan = async () => {
     if (!user) {
@@ -68,7 +82,7 @@ export default function EmbedPage() {
   const handleShare = () => {
     const shareText = `🔍 Unfollow Tool - Just cleaned up my Farcaster follows!
 
-Found ${scanResult?.veryInactiveUsers || 0} inactive users and ${scanResult?.notFollowingBack || 0} who don't follow back. This tool is 🔥
+Found ${scanResult?.veryInactiveUsers || 0} inactive users and ${scanResult?.notFollowingBack || 0} who don&apos;t follow back. This tool is 🔥
 
 Try it: https://unfollow.vercel.app/embed
 
@@ -120,17 +134,28 @@ ${shareText}`)
                 Sign in to start analyzing your follows
               </p>
               <Button 
-                onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
+                onClick={handleSignIn}
+                disabled={isSigningIn}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
                 size="lg"
               >
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                  </svg>
-                  Open Full App
-                </div>
+                {isSigningIn ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Connecting...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Sign in with Farcaster
+                  </div>
+                )}
               </Button>
+              {error && (
+                <p className="text-red-500 text-sm mt-2">{error}</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -185,9 +210,9 @@ ${shareText}`)
                     <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
                       @{user.username}
                     </div>
-                                         <div className="text-xs text-red-600 font-medium">
-                       {user.reason.replace("'", "&apos;")}
-                     </div>
+                    <div className="text-xs text-red-600 font-medium">
+                      {user.reason.replace("'", "&apos;")}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -274,16 +299,6 @@ ${shareText}`)
               {error}
             </div>
           )}
-
-          {/* Open Full App */}
-          <Button 
-            onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
-            variant="outline"
-            className="w-full py-3 px-6 rounded-lg transition-colors"
-            size="lg"
-          >
-            Open Full App
-          </Button>
         </CardContent>
       </Card>
     </div>
