@@ -1,0 +1,331 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useAuth } from "@/contexts/AuthContext"
+import { useFarcaster } from "@/components/FarcasterProvider"
+import Head from 'next/head'
+import Image from 'next/image'
+
+interface ScanResult {
+  totalFollows: number
+  inactiveUsers: number
+  spamAccounts: number
+  notFollowingBack: number
+  veryInactiveUsers: number
+  recommendations: Array<{
+    fid: number
+    username: string
+    display_name: string
+    pfp_url: string
+    bio: string
+    follower_count: number
+    following_count: number
+    last_active: number
+    follows_back: boolean
+    reason: string
+    days_inactive: number
+  }>
+}
+
+export default function EmbedPage() {
+  const { user, isAuthenticated, isLoading, signIn } = useAuth()
+  const { isReady, isInMiniApp } = useFarcaster()
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null)
+  const [isLoadingScan, setIsLoadingScan] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isSigningIn, setIsSigningIn] = useState(false)
+
+  // Debug logging
+  useEffect(() => {
+    console.log('EmbedPage: Component mounted')
+    console.log('EmbedPage: isReady:', isReady)
+    console.log('EmbedPage: isInMiniApp:', isInMiniApp)
+    console.log('EmbedPage: isAuthenticated:', isAuthenticated)
+    console.log('EmbedPage: isLoading:', isLoading)
+  }, [isReady, isInMiniApp, isAuthenticated, isLoading])
+
+  const handleSignIn = async () => {
+    try {
+      setIsSigningIn(true)
+      setError(null)
+      console.log('EmbedPage: Starting sign in...')
+      await signIn()
+      console.log('EmbedPage: Sign in completed')
+    } catch (error) {
+      console.error('EmbedPage: Sign in failed:', error)
+      setError('Sign in failed. Please try again.')
+    } finally {
+      setIsSigningIn(false)
+    }
+  }
+
+  const handleScan = async () => {
+    if (!user) {
+      setError('Please sign in first')
+      return
+    }
+
+    setIsLoadingScan(true)
+    setError(null)
+    setScanResult(null)
+
+    try {
+      const response = await fetch('/api/scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fid: user.fid.toString() }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to scan follows')
+      }
+
+      setScanResult(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsLoadingScan(false)
+    }
+  }
+
+  const handleShare = () => {
+    const shareText = `🔍 Unfollow Tool - Just cleaned up my Farcaster follows!
+
+Found ${scanResult?.veryInactiveUsers || 0} inactive users and ${scanResult?.notFollowingBack || 0} who don&apos;t follow back. This tool is 🔥
+
+Try it: https://unfollow.vercel.app/embed
+
+#farcaster #unfollow #tool`
+    
+    alert(`Share text copied to clipboard! You can now paste this in your Farcaster client:
+
+${shareText}`)
+    
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareText).then(() => {
+        console.log('Share text copied to clipboard')
+      }).catch(err => {
+        console.error('Failed to copy to clipboard:', err)
+      })
+    }
+  }
+
+  return (
+    <>
+      <Head>
+        <meta property="fc:miniapp" content="https://unfollow.vercel.app" />
+        <meta property="fc:miniapp:version" content="1.0.0" />
+        <meta property="fc:miniapp:image" content="https://unfollow.vercel.app/embed-thumbnail.png" />
+        <meta property="fc:miniapp:button" content="Analyze Follows" />
+        <meta property="fc:miniapp:action" content="https://unfollow.vercel.app/embed" />
+      </Head>
+
+      {isLoading ? (
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-300">Loading...</p>
+          </div>
+        </div>
+      ) : !isAuthenticated ? (
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+                🔍 Unfollow Tool
+              </CardTitle>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">
+                Analyze your follows and identify who to unfollow
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  Sign in to start analyzing your follows
+                </p>
+                <Button 
+                  onClick={handleSignIn}
+                  disabled={isSigningIn}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                  size="lg"
+                >
+                  {isSigningIn ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Connecting...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      </svg>
+                      Sign in with Farcaster
+                    </div>
+                  )}
+                </Button>
+                {error && (
+                  <p className="text-red-500 text-sm mt-2">{error}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : scanResult ? (
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+          <div className="max-w-md mx-auto space-y-4">
+            {/* Header */}
+            <div className="text-center mb-6">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                🔍 Follow Analysis
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
+                Analysis for @{user?.username}
+              </p>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 gap-3">
+              <Card className="text-center p-4">
+                <div className="text-2xl font-bold text-red-600">{scanResult.veryInactiveUsers}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Inactive Users</div>
+              </Card>
+              <Card className="text-center p-4">
+                <div className="text-2xl font-bold text-orange-600">{scanResult.notFollowingBack}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Don&apos;t Follow Back</div>
+              </Card>
+            </div>
+
+            {/* Recommendations */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Top Recommendations</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {scanResult.recommendations.slice(0, 3).map((user) => (
+                  <div key={user.fid} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <Image 
+                      src={user.pfp_url} 
+                      alt={user.display_name}
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 dark:text-white truncate">
+                        {user.display_name}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                        @{user.username}
+                      </div>
+                      <div className="text-xs text-red-600 font-medium">
+                        {user.reason.replace("'", "&apos;")}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <Button 
+                onClick={handleShare}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                size="lg"
+              >
+                📤 Share Results
+              </Button>
+              <Button 
+                onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
+                variant="outline"
+                className="w-full py-3 px-6 rounded-lg transition-colors"
+                size="lg"
+              >
+                View All Recommendations
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+                🔍 Unfollow Tool
+              </CardTitle>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">
+                Ready to analyze your follows?
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                              {/* User Info */}
+                <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  {user?.pfpUrl && (
+                    <Image 
+                      src={user.pfpUrl} 
+                      alt={user.displayName || 'User'}
+                      width={48}
+                      height={48}
+                      className="rounded-full"
+                    />
+                  )}
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {user?.displayName}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      @{user?.username}
+                    </div>
+                  </div>
+                </div>
+
+              {/* Scan Button */}
+              <Button 
+                onClick={handleScan}
+                disabled={isLoadingScan}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors"
+                size="lg"
+              >
+                {isLoadingScan ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Analyzing...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Start Analysis
+                  </div>
+                )}
+              </Button>
+
+              {error && (
+                <div className="text-red-600 text-sm text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              {/* Open Full App */}
+              <Button 
+                onClick={() => window.open('https://unfollow.vercel.app', '_blank')}
+                variant="outline"
+                className="w-full py-3 px-6 rounded-lg transition-colors"
+                size="lg"
+              >
+                Open Full App
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </>
+  )
+} 

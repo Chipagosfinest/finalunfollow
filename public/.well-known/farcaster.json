@@ -1,0 +1,33 @@
+{
+  "miniapp": {
+    "version": "1",
+    "name": "Unfollow Tool",
+    "iconUrl": "https://unfollow.vercel.app/icon.png",
+    "homeUrl": "https://unfollow.vercel.app/embed",
+    "splashImageUrl": "https://unfollow.vercel.app/icon.png",
+    "splashBackgroundColor": "#6366f1",
+    "subtitle": "Clean up your Farcaster follows",
+    "description": "Analyze your follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back.",
+    "screenshotUrls": [
+      "https://unfollow.vercel.app/thumbnail.png"
+    ],
+    "primaryCategory": "utility",
+    "tags": [
+      "farcaster",
+      "unfollow",
+      "tool",
+      "utility",
+      "social"
+    ],
+    "heroImageUrl": "https://unfollow.vercel.app/thumbnail.png",
+    "tagline": "Clean up your Farcaster follows",
+    "ogTitle": "Unfollow Tool",
+    "ogDescription": "Analyze your follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back.",
+    "ogImageUrl": "https://unfollow.vercel.app/thumbnail.png",
+    "requiredCapabilities": [
+      "actions.signIn",
+      "context.user",
+      "context.location"
+    ]
+  }
+} 
