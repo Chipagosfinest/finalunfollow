@@ -1,17 +1,22 @@
 {
   "name": "Unfollow Tool",
   "description": "Unfollow on Farcaster - Analyze your follows and identify who to unfollow. Find inactive users, spam accounts, and users who don't follow you back.",
-  "iconUrl": "https://unfollow.vercel.app/icon.png",
-  "homeUrl": "https://unfollow.vercel.app",
-  "version": "1.0.0",
-  "primaryCategory": "utility",
-  "tags": ["farcaster", "unfollow", "tool", "utility"],
-  "screenshots": [
-    "https://unfollow.vercel.app/thumbnail.png"
-  ],
+  "icon": "https://unfollow.vercel.app/icon.png",
+  "thumbnail": "https://unfollow.vercel.app/thumbnail.png",
+  "url": "https://unfollow.vercel.app",
+  "embed": {
+    "url": "https://unfollow.vercel.app/embed",
+    "thumbnail": "https://unfollow.vercel.app/thumbnail.png"
+  },
   "permissions": [
     "read_follows",
     "write_follows"
   ],
-  "signature": "0x...your_signature_here..."
+  "version": "1.0.0",
+  "author": "Unfollow Tool Team",
+  "primaryCategory": "utility",
+  "tags": ["farcaster", "unfollow", "tool", "utility"],
+  "screenshots": [
+    "https://unfollow.vercel.app/thumbnail.png"
+  ]
 } 
