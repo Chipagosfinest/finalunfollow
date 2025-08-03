@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: "Unfollow Tool",
     images: [
       {
-        url: "https://unfollow.vercel.app/thumbnail.html",
+        url: "https://unfollow.vercel.app/thumbnail.png",
         width: 1200,
         height: 630,
         alt: "Unfollow Tool",
@@ -37,11 +37,11 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Unfollow Tool",
     description: "Unfollow on Farcaster - Analyze your follows and identify who to unfollow",
-    images: ["https://unfollow.vercel.app/thumbnail.html"],
+    images: ["https://unfollow.vercel.app/thumbnail.png"],
   },
   other: {
     "fc:frame": "vNext",
-    "fc:frame:image": "https://unfollow.vercel.app/thumbnail.html",
+    "fc:frame:image": "https://unfollow.vercel.app/thumbnail.png",
     "fc:frame:button:1": "Try Unfollow Tool",
     "fc:frame:post_url": "https://unfollow.vercel.app/embed",
   },
